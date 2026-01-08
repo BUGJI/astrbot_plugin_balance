@@ -4,13 +4,13 @@ import asyncio
 from astrbot.api.event import filter, AstrMessageEvent
 from astrbot.api.star import Context, Star, register
 from astrbot.api import logger
+from astrbot.api import AstrBotConfig
 
-
-@register("balance_checker", "BUGJI", "通用查询各种API的余额", "1.0.0")
+@register("balance_checker", "BUGJI", "通用查询各种API的余额", "v0.0.1")
 class BalancePlugin(Star):
-    def __init__(self, context: Context):
+    def __init__(self, context: Context, config: AstrBotConfig):
         super().__init__(context)
-        self.config = context.config
+        self.config = config
         # token_config 是一个多行字符串
         self.token_config = self.config.get("token_config", "")
 
@@ -19,7 +19,7 @@ class BalancePlugin(Star):
 
     @filter.command("balance")
     async def balance(self, event: AstrMessageEvent):
-        results = []
+        results = [" 余额查询结果："]
 
         if not self.token_config.strip():
             yield event.plain_result("未配置 token_config")
