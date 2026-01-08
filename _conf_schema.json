@@ -1,0 +1,8 @@
+{
+  "token_config": {
+    "description": "API配置项目",
+    "type": "text",
+    "hint": "填写配置，请查看插件文档",
+    "default": "备注|请求地址|请求头|要读取的字段名|单位(例如 元)"
+  }
+}

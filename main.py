@@ -1,24 +1,66 @@
-from astrbot.api.event import filter, AstrMessageEvent, MessageEventResult
+import aiohttp
+import asyncio
+
+from astrbot.api.event import filter, AstrMessageEvent
 from astrbot.api.star import Context, Star, register
 from astrbot.api import logger
 
-@register("helloworld", "YourName", "一个简单的 Hello World 插件", "1.0.0")
-class MyPlugin(Star):
+
+@register("balance_checker", "BUGJI", "通用查询各种API的余额", "1.0.0")
+class BalancePlugin(Star):
     def __init__(self, context: Context):
         super().__init__(context)
+        self.config = context.config
+        # token_config 是一个多行字符串
+        self.token_config = self.config.get("token_config", "")
 
     async def initialize(self):
-        """可选择实现异步的插件初始化方法，当实例化该插件类之后会自动调用该方法。"""
+        logger.info("BalancePlugin 初始化完成")
 
-    # 注册指令的装饰器。指令名为 helloworld。注册成功后，发送 `/helloworld` 就会触发这个指令，并回复 `你好, {user_name}!`
-    @filter.command("helloworld")
-    async def helloworld(self, event: AstrMessageEvent):
-        """这是一个 hello world 指令""" # 这是 handler 的描述，将会被解析方便用户了解插件内容。建议填写。
-        user_name = event.get_sender_name()
-        message_str = event.message_str # 用户发的纯文本消息字符串
-        message_chain = event.get_messages() # 用户所发的消息的消息链 # from astrbot.api.message_components import *
-        logger.info(message_chain)
-        yield event.plain_result(f"Hello, {user_name}, 你发了 {message_str}!") # 发送一条纯文本消息
+    @filter.command("balance")
+    async def balance(self, event: AstrMessageEvent):
+        results = []
+
+        if not self.token_config.strip():
+            yield event.plain_result("未配置 token_config")
+            return
+
+        lines = self.token_config.strip().splitlines()
+
+        async with aiohttp.ClientSession() as session:
+            for line in lines:
+                try:
+                    remark, url, header_str, json_key, unit = line.split("|", 4)
+
+                    # 解析 Header
+                    header_name, header_value = header_str.split(":", 1)
+                    headers = {
+                        header_name.strip(): header_value.strip()
+                    }
+
+                    async with session.get(url, headers=headers, timeout=10) as resp:
+                        if resp.status != 200:
+                            logger.warning(f"{remark} 请求失败 HTTP {resp.status}")
+                            results.append(f"{remark} 请求失败")
+                            continue
+
+                        data = await resp.json()
+
+                        # 默认从 data 节中取值
+                        value = data.get("data", {}).get(json_key, None)
+                        if value is None:
+                            results.append(f"{remark} 未找到字段 {json_key}")
+                        else:
+                            results.append(f"{remark} {value} {unit}")
+
+                except Exception as e:
+                    logger.exception(f"处理配置行失败: {line}")
+                    results.append(f"{line.split('|', 1)[0]} 异常")
+
+        if results:
+            yield event.plain_result("\n".join(results))
+        else:
+            yield event.plain_result("无可用结果")
 
     async def terminate(self):
-        """可选择实现异步的插件销毁方法，当插件被卸载/停用时会调用。"""
+        logger.info("BalancePlugin 已卸载")
