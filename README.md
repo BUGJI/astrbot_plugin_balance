@@ -104,6 +104,18 @@ Authorization: xxx && Content-Type: yyy
 网心云|https://api-lab.onethingai.com/api/v1/account/wallet/detail|Authorization: Bearer 123456 && Content-Type: application/json|data.availableBalance|元
 ```
 
+# 🔥异常处理
+
+他会针对每一行返回异常，当调用的时候异常会显示在消息中（不会泄露token）
+
+| 注解 | 返回的消息 |
+| ---- | ---- |
+| 当字段数缺失的时候 | 配置格式错误（字段数不正确） |
+| 返回的状态码非200 | 服务商名字 请求失败 |
+| 获取的值为空/路径找不到 | 服务商名字 未找到字段 配置的字段名 |
+| 请求超时 | 服务商名字 请求超时 |
+| 任何未定义的异常 | 服务商名字 异常 |
+
 # 🐓注意
 
 - 请求方式默认 GET
