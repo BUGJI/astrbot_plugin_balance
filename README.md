@@ -8,9 +8,18 @@ AstrBot 万能余额查询，只需要详细填写配置文件即可
 
 # 👉快速开始
 
-配置项以```|```分割，一行一个，格式如下：
+使用```balance```命令，则会返回如下格式的消息：
+```
+余额查询结果：
+A云 1.14 元
+B云 5.14 元
+```
 
-```备注|请求地址|请求头|要读取的字段名|单位```
+## 🔍解读配置
+
+配置项以```|```符号分割，一行一个，格式如下：
+
+```备注|请求地址|请求头|要读取的字段名|金额单位```
 
 | 项目 | 用途 |
 | ---- | ---- |
@@ -19,6 +28,36 @@ AstrBot 万能余额查询，只需要详细填写配置文件即可
 | 请求头 | 即填写密钥头的地址，通常为Authorization: Bearer xxxxxx |
 | 要读取的字段名 | 通常余额会返回json格式，自动匹配余额字段并且获取余额 |
 | 单位 | 一个自定义后缀，通常写 元、积分 |
+
+## 📕模板配置
+
+你可以直接粘贴至配置文件，只需要替换您账户的有效token即可
+
+网心AI：
+
+```
+网心云|https://api-lab.onethingai.com/api/v1/account/wallet/detail|Authorization: Bearer 你的token|availableBalance|元
+```
+
+硅基流动：
+```
+哈基流动|https://api.siliconflow.cn/v1/user/info|Authorization: Bearer 你的token|totalBalance|元
+```
+
+Deepseek：
+```
+蓝色鲸鱼|https://api.deepseek.com/user/balance|Authorization: Bearer 你的token|total_balance|元
+```
+
+百度：
+```
+文档这么写的但是我没调用成功|https://billing.baidubce.com/v1/finance/cash/balance|Authorization: 你的token|cashBalance|元
+```
+
+
+# 💩通用配置
+
+它支持大部分已提供api的服务商，并且格式大差不差
 
 如这是网心AI的默认请求方式：
 
@@ -32,24 +71,24 @@ curl 'https://api-lab.onethingai.com/api/v1/account/wallet/detail' -H 'Authoriza
     "code": 0,
     "msg": "Success",
     "data": {
-      "availableBalance": 0.05,       #假设这一项是余额
+      "availableBalance": 0.05, #假设这一项是余额
       "availableVoucherCash": 72.93,  
       "consumeCashTotal": 6,          
     }
 }
 ```
 
-那么应将配置写为：
+假设你的token是123456，那么应将配置写为：
 ```text
 网心云|https://api-lab.onethingai.com/api/v1/account/wallet/detail|Authorization: Bearer 123456|availableBalance|元
 ```
-当请求```/balance```的时候，就会返回
+当请求```balance```的时候，就会返回
 ```
 余额查询结果：
 网心云 0.05 元
 ```
 
-# 🔴注意
+# 🐓注意
 
 - 请求方式默认 GET
 - 请求头目前只支持一条（但是 90% 场景够用）
