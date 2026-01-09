@@ -1,10 +1,4 @@
 {
-  "title": {
-    "description": "标题",
-    "type": "string",
-    "hint": "显示在消息的第一行",
-    "default": " 余额查询结果："
-  },
   "token_config": {
     "description": "API配置项目",
     "type": "text",
@@ -13,5 +7,17 @@
     "editor_theme": "vs-dark",
     "hint": "填写配置，请查看插件文档",
     "default": "备注|请求地址|请求头|要读取的字段名|单位(例如 元)"
+  },
+  "title": {
+    "description": "标题",
+    "type": "string",
+    "hint": "显示在消息的第一行",
+    "default": " 余额查询结果："
+  },
+  "enable_llm_tool": {
+    "description": "是否启用 LLM 工具",
+    "type": "bool",
+    "hint": "可以在自然对话查询余额",
+    "default": false
   }
 }

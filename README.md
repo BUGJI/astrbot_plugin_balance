@@ -3,8 +3,9 @@
 AstrBot 万能余额查询，只需要详细填写配置文件即可
 
 优势：
-- 支持90%的余额请求格式
+- 支持99%的余额请求格式
 - 配置中任意一行失败，不影响其他行
+- 支持LLM请求（可开关）
 
 # 👉快速开始
 
@@ -13,6 +14,31 @@ AstrBot 万能余额查询，只需要详细填写配置文件即可
 余额查询结果：
 A云 1.14 元
 B云 5.14 元
+```
+
+## 📕模板配置
+
+你可以直接粘贴至配置文件，只需要替换您账户的有效token即可
+
+网心AI：
+
+```
+网心云|https://api-lab.onethingai.com/api/v1/account/wallet/detail|Authorization: Bearer 你的token|data.availableBalance|元
+```
+
+硅基流动：
+```
+哈基流动|https://api.siliconflow.cn/v1/user/info|Authorization: Bearer 你的token|data.totalBalance|元
+```
+
+Deepseek：
+```
+蓝色鲸鱼|https://api.deepseek.com/user/balance|Authorization: Bearer 你的token|data.total_balance|元
+```
+
+百度：
+```
+文档这么写的但是我没调用成功|https://billing.baidubce.com/v1/finance/cash/balance|Authorization: 你的token|cashBalance|元
 ```
 
 ## 🔍解读配置
@@ -29,32 +55,6 @@ B云 5.14 元
 | 要读取的字段名 | 通常余额会返回json格式，自动匹配余额字段并且获取余额 |
 | 单位 | 一个自定义后缀，通常写 元、积分 |
 
-## 📕模板配置
-
-你可以直接粘贴至配置文件，只需要替换您账户的有效token即可
-
-网心AI：
-
-```
-网心云|https://api-lab.onethingai.com/api/v1/account/wallet/detail|Authorization: Bearer 你的token|availableBalance|元
-```
-
-硅基流动：
-```
-哈基流动|https://api.siliconflow.cn/v1/user/info|Authorization: Bearer 你的token|totalBalance|元
-```
-
-Deepseek：
-```
-蓝色鲸鱼|https://api.deepseek.com/user/balance|Authorization: Bearer 你的token|total_balance|元
-```
-
-百度：
-```
-文档这么写的但是我没调用成功|https://billing.baidubce.com/v1/finance/cash/balance|Authorization: 你的token|cashBalance|元
-```
-
-
 # 💩通用配置
 
 它支持大部分已提供api的服务商，并且格式大差不差
@@ -70,8 +70,8 @@ curl 'https://api-lab.onethingai.com/api/v1/account/wallet/detail' -H 'Authoriza
 {
     "code": 0,
     "msg": "Success",
-    "data": {
-      "availableBalance": 0.05, #假设这一项是余额
+    "data": {                    #这里有个data配置节
+      "availableBalance": 0.05,  #假设这一项是余额
       "availableVoucherCash": 72.93,  
       "consumeCashTotal": 6,          
     }
@@ -80,7 +80,7 @@ curl 'https://api-lab.onethingai.com/api/v1/account/wallet/detail' -H 'Authoriza
 
 假设你的token是123456，那么应将配置写为：
 ```text
-网心云|https://api-lab.onethingai.com/api/v1/account/wallet/detail|Authorization: Bearer 123456|availableBalance|元
+网心云|https://api-lab.onethingai.com/api/v1/account/wallet/detail|Authorization: Bearer 123456|data.availableBalance|元
 ```
 当请求```balance```的时候，就会返回
 ```
@@ -88,11 +88,26 @@ curl 'https://api-lab.onethingai.com/api/v1/account/wallet/detail' -H 'Authoriza
 网心云 0.05 元
 ```
 
+### 👴使用多请求头
+
+对于一些服务商，可能需要填写额外的Content-Type头
+
+你可以使用```&&```符号分隔多个请求头，就像这样：
+
+```
+Authorization: xxx && Content-Type: yyy
+```
+
+如果Content-Type以application/json填写到配置里，就会像这样
+
+```
+网心云|https://api-lab.onethingai.com/api/v1/account/wallet/detail|Authorization: Bearer 123456 && Content-Type: application/json|data.availableBalance|元
+```
+
 # 🐓注意
 
 - 请求方式默认 GET
-- 请求头目前只支持一条（但是 90% 场景够用）
 
 # 🩷特别感谢
 
-编写：ChatGPT
+编写&修改：ChatGPT
