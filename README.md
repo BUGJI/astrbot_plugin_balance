@@ -33,7 +33,7 @@ B云 5.14 元
 
 Deepseek：
 ```
-蓝色鲸鱼|https://api.deepseek.com/user/balance|Authorization: Bearer 你的token|data.total_balance|元
+蓝色鲸鱼|https://api.deepseek.com/user/balance|Authorization: Bearer 你的token|balance_infos.0.total_balance|元
 ```
 
 百度：
