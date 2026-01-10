@@ -132,6 +132,8 @@ class BalancePlugin(Star):
             value = self._get_by_path(data, path)
             return str(value) if value is not None else "N/A"
         return re.sub(r'\{([^}]+)\}', replacer, template)
+
+    async def _handle_line(self, line: str) -> str:
         try:
             parts = line.split("|")
             if len(parts) != 5:
