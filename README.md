@@ -6,6 +6,7 @@ AstrBot 万能余额查询，只需要详细填写配置文件即可
 - 支持99%的余额请求格式
 - 配置中任意一行失败，不影响其他行
 - 支持LLM请求（可开关）
+- 支持YAML配置，更灵活，支持URL参数、复杂Header、多结果展示
 
 # 👉快速开始
 
@@ -17,6 +18,8 @@ B云 5.14 元
 ```
 
 ## 📕模板配置
+
+### 旧版配置（向后兼容）
 
 你可以直接粘贴至配置文件，只需要替换您账户的有效token即可
 
@@ -41,7 +44,54 @@ Deepseek：
 文档这么写的但是我没调用成功|https://billing.baidubce.com/v1/finance/cash/balance|Authorization: 你的token|cashBalance|元
 ```
 
+### 新版YAML配置（推荐）
+
+支持更灵活的配置，包括URL参数、复杂Header、多结果展示。
+
+配置项：`services_config`
+
+示例：
+
+```yaml
+services:
+  Deepseek:
+    display_name: "蓝色鲸鱼"  # 自定义展示名称
+    url: "https://api.deepseek.com/user/balance?param1=value1&param2=value2"  # 支持手动加URL Params
+    headers:  # 键值对形式存储Header，天然支持&等特殊字符
+      Accept: "application/json"
+      Authorization: "Bearer sk-xxx&abc123"  # Header含&也不会被误分割
+    result_template: |  # 竖线支持多行字符串，可拼接多个结果
+      总余额：{balance_infos.0.total_balance}CNY
+      可用余额：{balance_infos.0.available_balance}CNY
+      冻结余额：{balance_infos.0.frozen_balance}CNY
+  SiliconFlow:
+    display_name: "硅流"
+    url: "https://api.siliconflow.cn/v1/user/info?token=xxx&type=1"  # URL Params自由添加
+    headers:
+      Authorization: "Bearer sk-xxx&yyy=zzz"  # 含&无影响
+      Content-Type: "application/json"
+    result_template: |
+      总余额：{data.totalBalance}CNY
+      剩余额度：{data.remainingQuota}
+      更新时间：{data.updateTime}
+```
+
+返回格式：
+```
+蓝色鲸鱼:
+总余额：10.0CNY
+可用余额：8.0CNY
+冻结余额：2.0CNY
+
+硅流:
+总余额：5.0CNY
+剩余额度：1000
+更新时间：2023-10-01
+```
+
 ## 🔍解读配置
+
+### 旧版配置
 
 配置项以```|```符号分割，一行一个，格式如下：
 
@@ -54,6 +104,16 @@ Deepseek：
 | 请求头 | 即填写密钥头的地址，通常为Authorization: Bearer xxxxxx |
 | 要读取的字段名 | 通常余额会返回json格式，自动匹配余额字段并且获取余额 |
 | 单位 | 一个自定义后缀，通常写 元、积分 |
+
+### 新版YAML配置
+
+| 项目 | 用途 |
+| ---- | ---- |
+| display_name | 自定义展示名称（可选，默认使用key） |
+| url | 请求地址，支持URL参数 |
+| headers | 请求头，键值对形式，支持特殊字符 |
+| method | 请求方法（可选，默认GET） |
+| result_template | 结果模板，使用{path}替换，支持多行 |
 
 # 💩通用配置
 
@@ -104,6 +164,8 @@ Authorization: xxx && Content-Type: yyy
 网心云|https://api-lab.onethingai.com/api/v1/account/wallet/detail|Authorization: Bearer 123456 && Content-Type: application/json|data.availableBalance|元
 ```
 
+在新版YAML中，直接在headers下添加键值对。
+
 # 🔥异常处理
 
 他会针对每一行返回异常，当调用的时候异常会显示在消息中（不会泄露token）
@@ -119,6 +181,7 @@ Authorization: xxx && Content-Type: yyy
 # 🐓注意
 
 - 请求方式默认 GET
+- 新版配置需要安装 pyyaml 库：`pip install pyyaml`
 
 # 🩷特别感谢
 
