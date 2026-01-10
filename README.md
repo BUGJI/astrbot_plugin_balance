@@ -19,6 +19,9 @@ B云 5.14 元
 
 ## 📕模板配置
 
+建议是使用新版，对于旧版有更强的可操作性。
+[前往](#新版yaml配置推荐)
+
 ### 旧版配置（向后兼容）
 
 你可以直接粘贴至配置文件，只需要替换您账户的有效token即可
@@ -55,25 +58,19 @@ Deepseek：
 ```yaml
 services:
   Deepseek:
-    display_name: "蓝色鲸鱼"  # 自定义展示名称
-    url: "https://api.deepseek.com/user/balance?param1=value1&param2=value2"  # 支持手动加URL Params
-    headers:  # 键值对形式存储Header，天然支持&等特殊字符
-      Accept: "application/json"
-      Authorization: "Bearer sk-xxx&abc123"  # Header含&也不会被误分割
-    result_template: |  # 竖线支持多行字符串，可拼接多个结果
-      总余额：{balance_infos.0.total_balance}CNY
-      可用余额：{balance_infos.0.available_balance}CNY
-      冻结余额：{balance_infos.0.frozen_balance}CNY
-  SiliconFlow:
-    display_name: "硅流"
-    url: "https://api.siliconflow.cn/v1/user/info?token=xxx&type=1"  # URL Params自由添加
+    display_name: "Deepseek"
+    url: "https://api.deepseek.com/user/balance"
     headers:
-      Authorization: "Bearer sk-xxx&yyy=zzz"  # 含&无影响
+      Accept: "application/json"
+      Authorization: "Bearer Your-APIKEY"
+    result_template: "{balance_infos.0.total_balance} CNY"
+  SiliconFlow:
+    display_name: "SiliconFlow"
+    url: "https://api.siliconflow.cn/v1/user/info"
+    headers:
+      Authorization: "Bearer Your-APIKEY"
       Content-Type: "application/json"
-    result_template: |
-      总余额：{data.totalBalance}CNY
-      剩余额度：{data.remainingQuota}
-      更新时间：{data.updateTime}
+    result_template: "{data.totalBalance} CNY"
 ```
 
 返回格式：
