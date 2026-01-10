@@ -19,6 +19,7 @@ class BalancePlugin(Star):
         self.token_config = self.config.get("token_config", "")
         self.services_config = self.config.get("services_config", "")
         self.enable_llm_tool: bool = self.config.get("enable_llm_tool", False)
+        self.use_yaml_config: bool = self.config.get("use_yaml_config", False)
 
         self.session: aiohttp.ClientSession | None = None
 
@@ -53,12 +54,16 @@ class BalancePlugin(Star):
         yield event.plain_result("\n".join(results))
 
     async def _query_all(self) -> list[str]:
-        if self.services_config.strip():
-            return await self._query_services()
-        elif self.token_config.strip():
-            return await self._query_legacy()
+        if self.use_yaml_config:
+            if self.services_config.strip():
+                return await self._query_services()
+            else:
+                return ["未配置YAML服务"]
         else:
-            return ["未配置服务"]
+            if self.token_config.strip():
+                return await self._query_legacy()
+            else:
+                return ["未配置旧版服务"]
 
     async def _query_legacy(self) -> list[str]:
         self._ensure_session()
@@ -88,6 +93,8 @@ class BalancePlugin(Star):
 
         tasks = []
         for name, service in services.items():
+            if not service.get('url'):
+                continue  # 跳过没有配置URL的服务
             service_copy = service.copy()
             service_copy['name'] = name
             tasks.append(self._handle_service(service_copy))

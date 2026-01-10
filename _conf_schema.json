@@ -28,5 +28,11 @@
     "type": "bool",
     "hint": "可以在自然对话查询余额",
     "default": false
+  },
+  "use_yaml_config": {
+    "description": "使用新版YAML配置",
+    "type": "bool",
+    "hint": "勾选使用YAML配置，否则使用旧版配置",
+    "default": false
   }
 }
