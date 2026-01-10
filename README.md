@@ -20,39 +20,13 @@ B云 5.14 元
 
 ## 📕模板配置
 
-插件支持两种配置方式：旧版配置（简单文本）和新版YAML配置（更灵活）。
+插件支持两种配置方式：旧版配置（单行文本）和新版YAML配置（更灵活配置）。
 
 请在插件配置中勾选"使用新版YAML配置"来选择配置方式。
 
-建议新用户使用新版YAML配置，对于旧版有更强的可操作性。
-[前往](#新版yaml配置推荐)
+建议新用户使用```新版YAML配置```，对于旧版有更强的可操作性。
 
-### 旧版配置（向后兼容）
-
-你可以直接粘贴至配置文件，只需要替换您账户的有效token即可
-
-网心AI：
-
-```
-网心云|https://api-lab.onethingai.com/api/v1/account/wallet/detail|Authorization: Bearer 你的token|data.availableBalance|元
-```
-
-硅基流动：
-```
-哈基流动|https://api.siliconflow.cn/v1/user/info|Authorization: Bearer 你的token|data.totalBalance|元
-```
-
-Deepseek：
-```
-蓝色鲸鱼|https://api.deepseek.com/user/balance|Authorization: Bearer 你的token|balance_infos.0.total_balance|元
-```
-
-百度：
-```
-文档这么写的但是我没调用成功|https://billing.baidubce.com/v1/finance/cash/balance|Authorization: 你的token|cashBalance|元
-```
-
-### 新版YAML配置（推荐）
+### YAML配置（推荐）
 
 支持更灵活的配置，包括URL参数、复杂Header、多结果展示。
 
@@ -91,9 +65,44 @@ services:
 更新时间：2026-1-10
 ```
 
+### 单行配置
+
+你可以直接粘贴至配置文件，只需要替换您账户的有效token即可
+
+网心AI：
+
+```
+网心云|https://api-lab.onethingai.com/api/v1/account/wallet/detail|Authorization: Bearer 你的token|data.availableBalance|元
+```
+
+硅基流动：
+```
+哈基流动|https://api.siliconflow.cn/v1/user/info|Authorization: Bearer 你的token|data.totalBalance|元
+```
+
+Deepseek：
+```
+蓝色鲸鱼|https://api.deepseek.com/user/balance|Authorization: Bearer 你的token|balance_infos.0.total_balance|元
+```
+
+百度：
+```
+文档这么写的但是我没调用成功|https://billing.baidubce.com/v1/finance/cash/balance|Authorization: 你的token|cashBalance|元
+```
+
 ## 🔍解读配置
 
-### 旧版配置
+### YAML配置
+
+| 项目 | 用途 |
+| ---- | ---- |
+| display_name | 自定义展示名称（可选，默认使用key） |
+| url | 请求地址，支持URL参数 |
+| headers | 请求头，键值对形式，支持特殊字符 |
+| method | 请求方法（可选，默认GET） |
+| result_template | 结果模板，使用{path}替换，支持多行 |
+
+### 单行配置
 
 配置项以```|```符号分割，一行一个，格式如下：
 
@@ -106,16 +115,6 @@ services:
 | 请求头 | 即填写密钥头的地址，通常为Authorization: Bearer xxxxxx |
 | 要读取的字段名 | 通常余额会返回json格式，自动匹配余额字段并且获取余额 |
 | 单位 | 一个自定义后缀，通常写 元、积分 |
-
-### 新版YAML配置
-
-| 项目 | 用途 |
-| ---- | ---- |
-| display_name | 自定义展示名称（可选，默认使用key） |
-| url | 请求地址，支持URL参数 |
-| headers | 请求头，键值对形式，支持特殊字符 |
-| method | 请求方法（可选，默认GET） |
-| result_template | 结果模板，使用{path}替换，支持多行 |
 
 # 💩通用配置
 
@@ -188,3 +187,4 @@ Authorization: xxx && Content-Type: yyy
 # 🩷特别感谢
 
 编写&修改：ChatGPT
+修改：Xbodwf
