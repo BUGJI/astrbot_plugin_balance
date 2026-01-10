@@ -4,7 +4,7 @@
     "type": "text",
     "editor_mode": true,
     "editor_language": "text",
-    "editor_theme": "vs-light",
+    "editor_theme": "vs",
     "hint": "填写配置，请查看插件文档",
     "default": "备注|请求地址|请求头|要读取的字段名|单位(例如 元)"
   },
@@ -13,7 +13,7 @@
     "type": "text",
     "editor_mode": true,
     "editor_language": "yaml",
-    "editor_theme": "vs-light",
+    "editor_theme": "vs",
     "hint": "填写YAML配置，请查看插件文档",
     "default": "services:\n  Example:\n    display_name: \"示例\"\n    url: \"https://api.example.com/balance\"\n    method: \"GET\"\n    headers:\n      Authorization: \"Bearer token\"\n    result_template: |\n      余额：{data.balance}元"
   },
