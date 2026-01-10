@@ -1,6 +1,6 @@
 {
   "token_config": {
-    "description": "API配置项目",
+    "description": "API配置项目（旧版，向后兼容）",
     "type": "text",
     "editor_mode": true,
     "editor_language": "text",
@@ -8,8 +8,17 @@
     "hint": "填写配置，请查看插件文档",
     "default": "备注|请求地址|请求头|要读取的字段名|单位(例如 元)"
   },
+  "services_config": {
+    "description": "API配置项目（新版YAML）",
+    "type": "text",
+    "editor_mode": true,
+    "editor_language": "yaml",
+    "editor_theme": "vs-dark",
+    "hint": "填写YAML配置，请查看插件文档",
+    "default": "services:\n  Example:\n    display_name: \"示例\"\n    url: \"https://api.example.com/balance\"\n    method: \"GET\"\n    headers:\n      Authorization: \"Bearer token\"\n    result_template: |\n      余额：{data.balance}元"
+  },
   "title": {
-    "description": "标题",
+    "description": "标题（仅旧版使用）",
     "type": "string",
     "hint": "显示在消息的第一行",
     "default": " 余额查询结果："
@@ -19,5 +28,11 @@
     "type": "bool",
     "hint": "可以在自然对话查询余额",
     "default": false
+  },
+  "use_yaml_config": {
+    "description": "使用新版YAML配置",
+    "type": "bool",
+    "hint": "勾选使用YAML配置，否则使用旧版配置",
+    "default": true
   }
 }
