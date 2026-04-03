@@ -39,14 +39,14 @@ services:
     headers:
       Accept: "application/json"
       Authorization: "Bearer Your-APIKEY"
-    result_template: "Deepseek: {balance_infos.0.total_balance} 元"
+    result_template: "Deepseek: {{balance_infos.0.total_balance}} 元"
 
   SiliconFlow:
     url: "https://api.siliconflow.cn/v1/user/info"
     headers:
       Authorization: "Bearer Your-APIKEY"
       Content-Type: "application/json"
-    result_template: "SiliconFlow: {data.totalBalance} 元"
+    result_template: "SiliconFlow: {{data.totalBalance}} 元"
 ```
 
 ### 单行配置
@@ -70,7 +70,32 @@ Deepseek 蓝色鲸鱼|https://api.deepseek.com/user/balance|Authorization: Beare
 | url | 请求地址，支持URL参数 |
 | headers | 请求头，键值对形式，支持特殊字符 |
 | method | 请求方法（可选，默认GET） |
-| result_template | 结果模板，使用{path}替换，支持多行 |
+| result_template | 结果模板，使用 `{{path}}` 替换，支持公式计算 |
+
+### 模板语法
+
+使用 **双层大括号** `{{}}` 包裹内容：
+
+```yaml
+# 简单取值
+result_template: "{{data.totalBalance}} 元"
+
+# 公式计算（内层 {path} 替换后计算外层）
+result_template: "{{abs({data.totalBalance})/100}} 元"
+result_template: "{{round({data.usage}/{data.limit}*100, 1)}}%"
+```
+
+**支持的函数：**
+
+| 函数 | 说明 | 示例 |
+|------|------|------|
+| `abs(x)` | 绝对值 | `{{abs({data.balance})}}` |
+| `round(x, n)` | 保留 n 位小数 | `{{round({data.usage}/{data.limit}*100, 1)}}` |
+| `sqrt(x)` | 平方根 | `{{sqrt({data.value})}}` |
+| `pow(x, n)` | 幂运算 | `{{pow({data.x}, 2)}}` |
+| `floor()`, `ceil()` | 取整 | `{{floor({data.value})}}` |
+
+支持运算符：`+`, `-`, `*`, `/`, `%`（如 `50%` = `50/100`）
 
 ### 单行配置
 
@@ -123,7 +148,7 @@ curl 'https://api-lab.onethingai.com/api/v1/account/wallet/detail' -H 'Authoriza
     headers:
       Authorization: "Bearer 123456"
       Content-Type: "application/json"
-    result_template: "网心云: {data.availableBalance} 元"
+    result_template: "网心云: {{data.availableBalance}} 元"
 ```
 
 当请求```balance```的时候，对应行应返回

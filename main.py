@@ -2,6 +2,8 @@ import aiohttp
 import asyncio
 import yaml
 import re
+import math
+from typing import Any
 
 from astrbot.api.event import filter, AstrMessageEvent, MessageEventResult
 from astrbot.api.star import Context, Star, register
@@ -112,7 +114,6 @@ class BalancePlugin(Star):
 
     async def _handle_yaml_service(self, name: str, info: dict) -> str:
         try:
-            # display_name 改为可选，如果 result_template 已包含名称则不需要
             display_name = info.get("display_name")
             url = info.get("url")
             method = info.get("method", "GET").upper()
@@ -128,18 +129,11 @@ class BalancePlugin(Star):
                     return f"{name}: 请求失败 (HTTP {resp.status})" if not display_name else f"{display_name}: 请求失败 (HTTP {resp.status})"
 
                 data = await resp.json()
+                # logger.info(f"[{name}] API 返回: {data}")
                 
-                # 渲染模板
-                result = result_template
-                placeholders = re.findall(r"\{(.*?)\}", result_template)
+                # 渲染模板：强制使用双层 {{data.xxx}}
+                result = self._render_template(result_template, data)
                 
-                for path in placeholders:
-                    value = self._get_by_path(data, path)
-                    if value is None:
-                        value = "N/A"
-                    result = result.replace(f"{{{path}}}", str(value))
-                
-                # 有 display_name 时才加前缀
                 if display_name:
                     return f"{display_name}:\n{result}"
                 return result
@@ -149,6 +143,96 @@ class BalancePlugin(Star):
         except Exception as e:
             logger.error(f"[{name}] 处理失败: {type(e).__name__}: {e}")
             return f"{display_name}: 异常"
+
+    def _render_template(self, template: str, data: dict) -> str:
+        """渲染模板，只处理双层大括号 {{...}}，单层大括号 {...} 忽略（除非在双层内部）"""
+        result = template
+        
+        # 查找所有双层大括号 {{...}}，内部可以包含任意字符（包括大括号）
+        # 使用非贪婪匹配
+        pattern = r'\{\{(.*?)\}\}'
+        
+        def process_match(match):
+            inner_content = match.group(1)  # 获取 {{ }} 内部的内容
+            
+            # 检查内部是否包含单层大括号 {xxx}
+            if re.search(r'\{[^{}]+\}', inner_content):
+                # 有内层大括号：先替换内层的 {path} 为实际值
+                inner_pattern = r'\{([^{}]+)\}'
+                
+                def replace_path(m):
+                    path = m.group(1)
+                    value = self._get_by_path(data, path)
+                    
+                    if value is None:
+                        return "N/A"
+                    
+                    # 转为字符串用于计算
+                    try:
+                        if isinstance(value, str):
+                            # 提取数字
+                            cleaned = re.sub(r'[^\d.-]', '', value)
+                            if cleaned:
+                                value = float(cleaned) if '.' in cleaned else int(cleaned)
+                    except (ValueError, TypeError):
+                        pass
+                    
+                    return str(value)
+                
+                # 替换所有内层路径
+                expr = re.sub(inner_pattern, replace_path, inner_content)
+                
+                # 计算表达式
+                try:
+                    computed = self._eval_expr(expr)
+                    return str(computed)
+                except Exception as e:
+                    logger.warning(f"表达式计算失败: {expr}, 错误: {e}")
+                    return "N/A"
+            else:
+                # 没有内层大括号：直接获取路径的值
+                value = self._get_by_path(data, inner_content)
+                if value is None:
+                    return "N/A"
+                
+                # 格式化输出
+                if isinstance(value, (int, float)):
+                    if isinstance(value, float) and not value.is_integer():
+                        return f"{value:.2f}"
+                return str(value)
+        
+        # 替换所有双层大括号
+        result = re.sub(pattern, process_match, result)
+        
+        return result
+
+    def _eval_expr(self, expr: str) -> Any:
+        """计算数学表达式"""
+        try:
+            result = expr
+            # 处理百分号
+            result = result.replace('%', '/100')
+            
+            # 安全函数
+            safe_funcs = {
+                'abs': abs, 'round': round, 'min': min, 'max': max,
+                'pow': pow, 'sqrt': math.sqrt, 'floor': math.floor,
+                'ceil': math.ceil, 'log': math.log, 'log10': math.log10,
+                'exp': math.exp, 'sin': math.sin, 'cos': math.cos, 'tan': math.tan,
+                'pi': math.pi, 'e': math.e
+            }
+            
+            eval_result = eval(result, {"__builtins__": {}}, safe_funcs)
+            
+            # 格式化
+            if isinstance(eval_result, float):
+                if eval_result.is_integer():
+                    return int(eval_result)
+                return round(eval_result, 2)
+            return eval_result
+        except Exception as e:
+            logger.warning(f"公式计算失败: {expr}, 错误: {e}")
+            return "错误"
 
     async def _handle_line(self, line: str) -> str:
         try:
