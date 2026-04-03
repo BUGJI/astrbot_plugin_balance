@@ -5,7 +5,7 @@
     "editor_mode": true,
     "editor_language": "yaml",
     "editor_theme": "vs-dark",
-    "hint": "简单模式：备注|URL|Header|字段路径|单位\nYAML模式：完整的YAML配置",
+    "hint": "用于配置如何解析余额",
     "default": "services:\n  aliyun:\n    url: \"https://api.aliyun.com/xxx\"\n    method: \"GET\"\n    headers:\n      Authorization: \"Bearer token\"\n    result_template: \"阿里云余额：{data.balance}元\"\n  openai:\n    url: \"https://api.openai.com/xxx\"\n    result_template: \"OpenAI余额：${data.balance}\""
   },
   "config_mode": {
