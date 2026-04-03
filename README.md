@@ -39,38 +39,25 @@ services:
     headers:
       Accept: "application/json"
       Authorization: "Bearer Your-APIKEY"
-    result_template: "Deepseek: {balance_infos.0.total_balance} CNY"
+    result_template: "Deepseek: {balance_infos.0.total_balance} 元"
+
   SiliconFlow:
     url: "https://api.siliconflow.cn/v1/user/info"
     headers:
       Authorization: "Bearer Your-APIKEY"
       Content-Type: "application/json"
-    result_template: "SiliconFlow: {data.totalBalance} CNY"
+    result_template: "SiliconFlow: {data.totalBalance} 元"
 ```
 
 ### 单行配置
 
-你可以直接粘贴至配置文件，只需要替换您账户的有效token即可
-
-网心AI：
+你可以直接粘贴至配置文件，只需要替换您账户的有效token即可（一行一个）
 
 ```
-网心云|https://api-lab.onethingai.com/api/v1/account/wallet/detail|Authorization: Bearer 你的token|data.availableBalance|元
-```
-
-硅基流动：
-```
-哈基流动|https://api.siliconflow.cn/v1/user/info|Authorization: Bearer 你的token|data.totalBalance|元
-```
-
-Deepseek：
-```
-蓝色鲸鱼|https://api.deepseek.com/user/balance|Authorization: Bearer 你的token|balance_infos.0.total_balance|元
-```
-
-百度：
-```
-文档这么写的但是我没调用成功|https://billing.baidubce.com/v1/finance/cash/balance|Authorization: 你的token|cashBalance|元
+OneThingAI 网心云|https://api-lab.onethingai.com/api/v1/account/wallet/detail|Authorization: Bearer 你的token|data.availableBalance|元
+硅基流动 哈基流动|https://api.siliconflow.cn/v1/user/info|Authorization: Bearer 你的token|data.totalBalance|元
+Deepseek 蓝色鲸鱼|https://api.deepseek.com/user/balance|Authorization: Bearer 你的token|balance_infos.0.total_balance|元
+百度 不确定能不能调用|https://billing.baidubce.com/v1/finance/cash/balance|Authorization: 你的token|cashBalance|元
 ```
 
 ## 🔍解读配置
