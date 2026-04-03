@@ -9,16 +9,15 @@ from astrbot.api import logger
 from astrbot.api import AstrBotConfig
 
 
-@register("balance_checker", "BUGJI", "通用查询各种 API 的余额", "v0.2.0")
+@register("balance_checker", "BUGJI", "通用查询各种 API 的余额", "v0.3.1")
 class BalancePlugin(Star):
     def __init__(self, context: Context, config: AstrBotConfig):
         super().__init__(context)
         self.config = config
 
-        self.title = self.config.get("title", "余额查询结果：")
-        self.token_config = self.config.get("token_config", "")
-        self.services_config = self.config.get("services_config", "")
-        self.use_yaml_config: bool = self.config.get("use_yaml_config", False)
+        self.result_template = self.config.get("result_template", "余额查询结果：\n{result}")
+        self.config_content = self.config.get("config_content", "")
+        self.config_mode: str = self.config.get("config_mode", "yaml")  # "simple" | "yaml"
         self.enable_llm_tool: bool = self.config.get("enable_llm_tool", False)
 
         self.session: aiohttp.ClientSession | None = None
@@ -39,7 +38,8 @@ class BalancePlugin(Star):
     @filter.command("balance")
     async def balance(self, event: AstrMessageEvent):
         results = await self._query_all()
-        yield event.plain_result("\n".join(results))
+        output = self.result_template.replace("{result}", "\n".join(results))
+        yield event.plain_result(output)
 
     @filter.llm_tool(name="query_balance")
     async def query_balance(self, event: AstrMessageEvent) -> MessageEventResult:
@@ -51,35 +51,25 @@ class BalancePlugin(Star):
             return
 
         results = await self._query_all()
-        yield event.plain_result("\n".join(results))
+        output = self.result_template.replace("{result}", "\n".join(results))
+        yield event.plain_result(output)
 
     async def _query_all(self) -> list[str]:
-        if self.use_yaml_config:
+        if not self.config_content.strip():
+            return ["未配置 config_content"]
+
+        if self.config_mode == "yaml":
             return await self._query_yaml()
         
-        if not self.token_config.strip():
-            return ["未配置 token_config"]
-
-        self._ensure_session()
-
-        lines = self.token_config.strip().splitlines()
-        tasks = [self._handle_line(line) for line in lines]
-
-        results = [self.title]
-
-        responses = await asyncio.gather(*tasks, return_exceptions=True)
-        for r in responses:
-            if isinstance(r, str):
-                results.append(r)
-
-        return results
+        # simple 模式（兼容旧版格式）
+        return await self._query_simple()
 
     async def _query_yaml(self) -> list[str]:
-        if not self.services_config.strip():
-            return ["未配置 services_config"]
+        if not self.config_content.strip():
+            return ["未配置 config_content"]
 
         try:
-            config_data = yaml.safe_load(self.services_config)
+            config_data = yaml.safe_load(self.config_content)
             services = config_data.get("services", {})
         except Exception as e:
             logger.error(f"解析 YAML 配置失败: {e}")
@@ -104,21 +94,38 @@ class BalancePlugin(Star):
 
         return results
 
+    async def _query_simple(self) -> list[str]:
+        """简单模式：使用旧版格式的配置"""
+        self._ensure_session()
+
+        lines = self.config_content.strip().splitlines()
+        tasks = [self._handle_line(line) for line in lines]
+
+        results = [self.title]
+
+        responses = await asyncio.gather(*tasks, return_exceptions=True)
+        for r in responses:
+            if isinstance(r, str):
+                results.append(r)
+
+        return results
+
     async def _handle_yaml_service(self, name: str, info: dict) -> str:
         try:
-            display_name = info.get("display_name", name)
+            # display_name 改为可选，如果 result_template 已包含名称则不需要
+            display_name = info.get("display_name")
             url = info.get("url")
             method = info.get("method", "GET").upper()
             headers = info.get("headers", {})
             result_template = info.get("result_template", "{data}")
 
             if not url:
-                return f"{display_name}: 缺失 URL"
+                return f"{name}: 缺失 URL" if not display_name else f"{display_name}: 缺失 URL"
 
             async with self.session.request(method, url, headers=headers, timeout=10) as resp:
                 if resp.status != 200:
-                    logger.warning(f"[{display_name}] HTTP {resp.status}")
-                    return f"{display_name}: 请求失败 (HTTP {resp.status})"
+                    logger.warning(f"[{name}] HTTP {resp.status}")
+                    return f"{name}: 请求失败 (HTTP {resp.status})" if not display_name else f"{display_name}: 请求失败 (HTTP {resp.status})"
 
                 data = await resp.json()
                 
@@ -132,7 +139,10 @@ class BalancePlugin(Star):
                         value = "N/A"
                     result = result.replace(f"{{{path}}}", str(value))
                 
-                return f"{display_name}:\n{result}"
+                # 有 display_name 时才加前缀
+                if display_name:
+                    return f"{display_name}:\n{result}"
+                return result
 
         except asyncio.TimeoutError:
             return f"{display_name}: 请求超时"
