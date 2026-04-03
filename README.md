@@ -30,39 +30,22 @@ B云 5.14 元
 
 支持更灵活的配置，包括URL参数、复杂Header、多结果展示。
 
-配置项：`services_config`
-
 示例：
 
 ```yaml
 services:
   Deepseek:
-    display_name: "Deepseek"
     url: "https://api.deepseek.com/user/balance"
     headers:
       Accept: "application/json"
       Authorization: "Bearer Your-APIKEY"
-    result_template: "{balance_infos.0.total_balance} CNY"
+    result_template: "Deepseek: {balance_infos.0.total_balance} CNY"
   SiliconFlow:
-    display_name: "SiliconFlow"
     url: "https://api.siliconflow.cn/v1/user/info"
     headers:
       Authorization: "Bearer Your-APIKEY"
       Content-Type: "application/json"
-    result_template: "{data.totalBalance} CNY"
-```
-
-返回格式：
-```
-蓝色鲸鱼:
-总余额：10.0CNY
-可用余额：8.0CNY
-冻结余额：2.0CNY
-
-硅流:
-总余额：5.0CNY
-剩余额度：1000
-更新时间：2026-1-10
+    result_template: "SiliconFlow: {data.totalBalance} CNY"
 ```
 
 ### 单行配置
@@ -116,7 +99,7 @@ Deepseek：
 | 要读取的字段名 | 通常余额会返回json格式，自动匹配余额字段并且获取余额 |
 | 单位 | 一个自定义后缀，通常写 元、积分 |
 
-# 💩通用配置
+# 💩添加第三方配置
 
 它支持大部分已提供api的服务商，并且格式大差不差
 
@@ -140,12 +123,25 @@ curl 'https://api-lab.onethingai.com/api/v1/account/wallet/detail' -H 'Authoriza
 ```
 
 假设你的token是123456，那么应将配置写为：
+
 ```text
 网心云|https://api-lab.onethingai.com/api/v1/account/wallet/detail|Authorization: Bearer 123456|data.availableBalance|元
 ```
-当请求```balance```的时候，就会返回
+
+或者新的yaml格式：
+
+```yaml
+  OneThing:
+    url: "https://api-lab.onethingai.com/api/v1/account/wallet/detail"
+    headers:
+      Authorization: "Bearer 123456"
+      Content-Type: "application/json"
+    result_template: "网心云: {data.availableBalance} 元"
 ```
-余额查询结果：
+
+当请求```balance```的时候，对应行应返回
+
+```
 网心云 0.05 元
 ```
 
@@ -186,5 +182,5 @@ Authorization: xxx && Content-Type: yyy
 
 # 🩷特别感谢
 
-编写&修改：ChatGPT
+编写&修改：ChatGPT MiniMax M2.5
 修改：Xbodwf
