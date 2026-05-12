@@ -49,11 +49,11 @@ services:
     result_template: "SiliconFlow: {{data.totalBalance}} 元"
 
   new-api:  # 此处为基于NewApi站点的通用配置，可以改成对应站点名字
-      url: "http://newapi.domain/api/user/self" # 替换newapi.domain为你的站点地址
-      headers:
-        Authorization: "Bearer Your-Access-Token" # 不是APIKEY，需要登录 new-api 后台 → 个人设置 → 生成访问令牌（Access Token）
-        New-Api-User: "1" # 用户ID
-      result_template: "new-api: {{round({data.quota}/500000, 2)}} 美元 (已用 {{round({data.used_quota}/500000, 2)}})"
+    url: "http://newapi.domain/api/user/self" # 替换newapi.domain为你的站点地址
+    headers:
+      Authorization: "Bearer Your-Access-Token" # 不是APIKEY，需要登录 new-api 后台 → 个人设置 → 生成访问令牌（Access Token）
+      New-Api-User: "1" # 用户ID
+    result_template: "new-api: {{round({data.quota}/500000, 2)}} 美元 (已用 {{round({data.used_quota}/500000, 2)}})"
 ```
 
 ### 单行配置
