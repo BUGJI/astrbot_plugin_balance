@@ -25,15 +25,15 @@ B云 5.14 元
 
 可以直接复制并修改 `api_key` 字段为你的 token
 
-如没有支持的站点 请跳转到下方 YAML 自定义模式
+如没有支持的站点 请跳转到下方 自定义格式
 
-### 🚀 内置解析器（v0.4.0 新增）
+### 🚀 内置解析器
 
 只需填写 `type` + `api_key` 即可
 
 ```yaml
 services:
-  deepseek:
+  deepseek: # 只需要复制需要的三行即可
     type: "deepseek"
     api_key: "sk-xxx"
 
@@ -54,7 +54,7 @@ services:
     api_key: "sk-xxx"
 ```
 
-### YAML 自定义模式
+### 自定义格式
 
 使用 `type: "custom"` 时为自定义模式，可以和上方配置混合使用
 
@@ -76,15 +76,26 @@ services:
     headers:
       Authorization: "Bearer Your-APIKEY"
       Content-Type: "application/json"
-    result_template: "哈基流动: {{data.totalBalance}} CNY/元/人民币/Q币"
+    result_template: "哈基流动: {{data.totalBalance}} CNY/元/人民币/Q币" # 模板可以修改成任何东西
 
   new-api:  # 此处为基于NewApi站点的通用配置，可以改成对应站点名字
+    type: "custom"
     url: "http://newapi.domain/api/user/self" # 替换newapi.domain为你的站点地址
     headers:
       Authorization: "Bearer Your-Access-Token" # 不是APIKEY，需要登录 new-api 后台 → 个人设置 → 生成访问令牌（Access Token）
       New-Api-User: "1" # 用户ID
     result_template: "new-api: {{round({data.quota}/500000, 2)}} 美元 (已用 {{round({data.used_quota}/500000, 2)}})"
 ```
+
+### 解读配置
+
+| 项目 | 用途 |
+| ---- | ---- |
+| typ**e** | 代表字段类型，用于判断是使用已有的模板，还是使用自定义模板 |
+| url | 请求地址，支持URL参数 |
+| headers | 请求头，键值对形式，支持特殊字符 |
+| method | 请求方法（可选，默认GET） |
+| result_template | 结果模板，使用 `{{path}}` 替换，支持公式计算 |
 
 # 💩添加第三方配置
 
@@ -113,11 +124,11 @@ curl 'https://api-lab.onethingai.com/api/v1/account/wallet/detail' -H 'Authoriza
 
 ```yaml
   OneThing:
-    url: "https://api-lab.onethingai.com/api/v1/account/wallet/detail"
+    url: "https://api-lab.onethingai.com/api/v1/account/wallet/detail" # 请求地址 
     headers:
-      Authorization: "Bearer 123456"
+      Authorization: "Bearer 123456" # 余额
       Content-Type: "application/json"
-    result_template: "网心云: {{data.availableBalance}} 元"
+    result_template: "网心云: {{data.availableBalance}} 元" # 配置节
 ```
 
 当请求```balance```的时候，对应行应返回
@@ -125,19 +136,6 @@ curl 'https://api-lab.onethingai.com/api/v1/account/wallet/detail' -H 'Authoriza
 ```
 网心云 0.05 元
 ```
-
-
-## 🔍解读配置
-
-### YAML配置
-
-| 项目 | 用途 |
-| ---- | ---- |
-| display_name | 自定义展示名称（可选，默认使用key） |
-| url | 请求地址，支持URL参数 |
-| headers | 请求头，键值对形式，支持特殊字符 |
-| method | 请求方法（可选，默认GET） |
-| result_template | 结果模板，使用 `{{path}}` 替换，支持公式计算 |
 
 ### 模板高级语法（通常用于精确计算）
 
@@ -166,20 +164,6 @@ result_template: "{{round({data.usage}/{data.limit}*100, 1)}}%"
 
 支持运算符：`+`, `-`, `*`, `/`, `%`（如 `50%` = `50/100`）
 
-### 单行配置
-
-配置项以`|`符号分割，一行一个，格式如下：
-
-`备注|请求地址|请求头|要读取的字段名|金额单位`
-
-| 项目 | 用途 |
-| ---- | ---- |
-| 备注 | 用于显示API服务商名字 |
-| 请求地址 | 即显式API地址，通常http(s)开头 |
-| 请求头 | 即填写密钥头的地址，通常为Authorization: Bearer xxxxxx |
-| 要读取的字段名 | 通常余额会返回json格式，自动匹配余额字段并且获取余额 |
-| 单位 | 一个自定义后缀，通常写 元、积分 |
-
 # 🔥异常处理
 
 他会针对每一行返回异常，当调用的时候异常会显示在消息中（不会泄露token）
@@ -191,10 +175,6 @@ result_template: "{{round({data.usage}/{data.limit}*100, 1)}}%"
 | 获取的值为空/路径找不到 | 服务商名字 未找到字段 配置的字段名 |
 | 请求超时 | 服务商名字 请求超时 |
 | 任何未定义的异常 | 服务商名字 异常 |
-
-# 🐓注意
-
-- 请求方式默认 GET
 
 # 🩷特别感谢
 
