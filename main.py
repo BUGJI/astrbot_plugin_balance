@@ -62,8 +62,16 @@ _BUILTIN_PARSERS = {
         "url": "https://api-lab.onethingai.com/api/v1/account/wallet/detail",
         "headers": {
             "Authorization": "Bearer {api_key}",
-        },
+        }，
         "result_template": "OneThing: {{data.availableBalance}} 元",
+    },
+    "minimax": {
+        "url": "https://www.minimaxi.com/v1/api/openplatform/coding_plan/remains",
+        "headers": {
+            "Authorization": "Bearer {api_key}",
+            "Content-Type": "application/json",
+        },
+        "result_template": "MiniMax: 剩余 {{round({model_remains.0.current_interval_total_count}-{model_remains.0.current_interval_usage_count})}}/{{model_remains.0.current_interval_total_count}} ({{round(({model_remains.0.current_interval_total_count}-{model_remains.0.current_interval_usage_count})/{model_remains.0.current_interval_total_count}*100, 1)}}%), 本周 {{round({model_remains.0.current_weekly_total_count}-{model_remains.0.current_weekly_usage_count})}}/{{model_remains.0.current_weekly_total_count}}",
     },
     
 }
