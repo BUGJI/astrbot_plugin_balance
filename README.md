@@ -4,6 +4,7 @@ AstrBot 万能余额查询，只需要详细填写配置文件即可
 
 优势：
 - 支持99%的余额请求格式
+- 内置解析器：常用服务开箱即用，只需填 api_key
 - 配置中任意一行失败，不影响其他行
 - 支持LLM请求（可开关）
 - 支持YAML配置，更灵活，支持URL参数、复杂Header、多结果展示
@@ -26,15 +27,51 @@ B云 5.14 元
 
 建议新用户使用```新版YAML配置```，对于旧版有更强的可操作性。
 
-### YAML配置（推荐）
+### 🚀 内置解析器（v0.4.0 新增）
 
-支持更灵活的配置，包括URL参数、复杂Header、多结果展示。
+只需 `type` + `api_key`，无需手动找 API 地址和 JSON 路径。
 
-示例：
+```yaml
+services:
+  deepseek:
+    type: "deepseek"
+    api_key: "sk-xxx"
+
+  siliconflow:
+    type: "siliconflow"
+    api_key: "sk-xxx"
+
+  openrouter:
+    type: "openrouter"
+    api_key: "sk-or-xxx"
+
+  moonshot:
+    type: "moonshot"
+    api_key: "sk-xxx"
+
+  openai:
+    type: "openai"
+    api_key: "sk-xxx"
+
+  # One-API / New-API 自建实例（需要 base_url）
+  my_api:
+    type: "oneapi"
+    base_url: "https://my-api.example.com"
+    api_key: "sk-xxx"
+```
+
+**当前支持的内置类型：** `deepseek`, `siliconflow`, `openrouter`, `oneapi`, `moonshot`, `openai`
+
+内置模式下，用户仍可选择性覆盖 `url`、`headers`、`result_template`、`display_name`、`method` 字段。
+
+### YAML 自定义模式
+
+`type: "custom"` 或不填 `type` 时使用自定义模式，需完整配置 url/headers/result_template。
 
 ```yaml
 services:
   Deepseek:
+    type: "custom"  # 可不填，默认 custom
     url: "https://api.deepseek.com/user/balance"
     headers:
       Accept: "application/json"
@@ -47,13 +84,6 @@ services:
       Authorization: "Bearer Your-APIKEY"
       Content-Type: "application/json"
     result_template: "SiliconFlow: {{data.totalBalance}} 元"
-
-  new-api:  # 此处为基于NewApi站点的通用配置，可以改成对应站点名字
-    url: "http://newapi.domain/api/user/self" # 替换newapi.domain为你的站点地址
-    headers:
-      Authorization: "Bearer Your-Access-Token" # 不是APIKEY，需要登录 new-api 后台 → 个人设置 → 生成访问令牌（Access Token）
-      New-Api-User: "1" # 用户ID
-    result_template: "new-api: {{round({data.quota}/500000, 2)}} 美元 (已用 {{round({data.used_quota}/500000, 2)}})"
 ```
 
 ### 单行配置
