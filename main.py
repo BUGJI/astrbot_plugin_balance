@@ -11,7 +11,65 @@ from astrbot.api import logger
 from astrbot.api import AstrBotConfig
 
 
-@register("balance_checker", "BUGJI", "通用查询各种 API 的余额", "v0.3.1")
+# 内置解析器预设：type 字段对应此表，用户只需提供 api_key
+_BUILTIN_PARSERS = {
+    "deepseek": {
+        "url": "https://api.deepseek.com/user/balance",
+        "headers": {
+            "Accept": "application/json",
+            "Authorization": "Bearer {api_key}",
+        },
+        "result_template": "DeepSeek: {{balance_infos.0.total_balance}} 元",
+    },
+    "siliconflow": {
+        "url": "https://api.siliconflow.cn/v1/user/info",
+        "headers": {
+            "Authorization": "Bearer {api_key}",
+            "Content-Type": "application/json",
+        },
+        "result_template": "硅基流动: {{data.totalBalance}} 元",
+    },
+    "openrouter": {
+        "url": "https://openrouter.ai/api/v1/credits",
+        "headers": {
+            "Authorization": "Bearer {api_key}",
+        },
+        "result_template": "OpenRouter: ${{data.total_credits}}",
+    },
+    "oneapi": {
+        # One-API / New-API 自建实例，需要 base_url（如 https://your.domain）
+        "url": "{base_url}/api/user/self",
+        "headers": {
+            "Authorization": "Bearer {api_key}",
+        },
+        "result_template": "{{data.email}}: {{data.balance}} 元",
+    },
+    "moonshot": {
+        "url": "https://api.moonshot.cn/v1/users/me/balance",
+        "headers": {
+            "Authorization": "Bearer {api_key}",
+        },
+        "result_template": "月之暗面: {{data.available_balance}} 元",
+    },
+    "openai": {
+        "url": "https://api.openai.com/v1/dashboard/billing/subscription",
+        "headers": {
+            "Authorization": "Bearer {api_key}",
+        },
+        "result_template": "OpenAI: ${{hard_limit_usd}}",
+    },
+    "onething": {
+        "url": "https://api-lab.onethingai.com/api/v1/account/wallet/detail",
+        "headers": {
+            "Authorization": "Bearer {api_key}",
+        },
+        "result_template": "OneThing: {{data.availableBalance}} 元",
+    },
+    
+}
+
+
+@register("balance_checker", "BUGJI", "通用查询各种 API 的余额", "v0.4.0")
 class BalancePlugin(Star):
     def __init__(self, context: Context, config: AstrBotConfig):
         super().__init__(context)
@@ -49,7 +107,7 @@ class BalancePlugin(Star):
         查询并返回当前配置的所有余额信息
         """
         if not self.enable_llm_tool:
-            yield event.plain_result("余额查询 LLM 工具未启用")
+            yield event.plain_result("什么都木有~")
             return
 
         results = await self._query_all()
@@ -114,35 +172,83 @@ class BalancePlugin(Star):
 
     async def _handle_yaml_service(self, name: str, info: dict) -> str:
         try:
+            # === type 字段判断：内置解析器 vs 自定义 ===
+            parser_type = info.get("type", "custom") or "custom"
             display_name = info.get("display_name")
-            url = info.get("url")
-            method = info.get("method", "GET").upper()
-            headers = info.get("headers", {})
-            result_template = info.get("result_template", "{data}")
 
-            if not url:
-                return f"{name}: 缺失 URL" if not display_name else f"{display_name}: 缺失 URL"
+            if parser_type == "custom":
+                # 自定义模式：完全由用户提供 url / headers / result_template
+                url = info.get("url")
+                method = info.get("method", "GET").upper()
+                headers = info.get("headers", {})
+                result_template = info.get("result_template", "{data}")
 
+                if not url:
+                    label = display_name or name
+                    return f"{label}: 缺失 URL"
+
+            elif parser_type in _BUILTIN_PARSERS:
+                # 内置解析器模式：预设填充，用户只需 api_key
+                preset = dict(_BUILTIN_PARSERS[parser_type])
+
+                display_name = display_name or preset.get("display_name", name)
+
+                api_key = info.get("api_key", "")
+                base_url = info.get("base_url", "")
+
+                # 必需字段校验
+                if not api_key:
+                    return f"{display_name}: 缺少 api_key"
+                preset_url = preset.get("url", "")
+                if "{base_url}" in preset_url and not base_url:
+                    return f"{display_name}: 缺少 base_url（该类型需要自建实例地址）"
+
+                # URL：用户可覆盖预设
+                url = info.get("url") or preset_url
+                url = url.replace("{base_url}", base_url)
+
+                # Headers：预设 + 用户可追加/覆盖
+                headers = {}
+                for k, v in preset.get("headers", {}).items():
+                    headers[k] = v.replace("{api_key}", api_key).replace("{base_url}", base_url)
+                for k, v in info.get("headers", {}).items():
+                    headers[k] = v.replace("{api_key}", api_key).replace("{base_url}", base_url)
+
+                # Template & Method：用户可覆盖预设
+                result_template = info.get("result_template") or preset.get("result_template", "{data}")
+                method = info.get("method", preset.get("method", "GET")).upper()
+
+            else:
+                # 未知的内置类型
+                label = display_name or name
+                return f"{label}: 未知的内置解析器类型 '{parser_type}'，可选: {', '.join(sorted(_BUILTIN_PARSERS.keys()))}"
+
+            # === 统一的请求 & 渲染逻辑 ===
             async with self.session.request(method, url, headers=headers, timeout=10) as resp:
                 if resp.status != 200:
-                    logger.warning(f"[{name}] HTTP {resp.status}")
-                    return f"{name}: 请求失败 (HTTP {resp.status})" if not display_name else f"{display_name}: 请求失败 (HTTP {resp.status})"
+                    logger.warning(f"[{name}] HTTP {resp.status} {url}")
+                    label = display_name or name
+                    return f"{label}: 请求失败 (HTTP {resp.status})"
 
                 data = await resp.json()
                 # logger.info(f"[{name}] API 返回: {data}")
-                
-                # 渲染模板：强制使用双层 {{data.xxx}}
+
                 result = self._render_template(result_template, data)
+                logger.debug(result)
                 
-                if display_name:
-                    return f"{display_name}:\n{result}"
+                # 弃用 display_name 逻辑
+                # if display_name:
+                #     return f"{display_name}:\n{result}"
+                
                 return result
 
         except asyncio.TimeoutError:
-            return f"{display_name}: 请求超时"
+            label = display_name or name
+            return f"{label}: 请求超时"
         except Exception as e:
             logger.error(f"[{name}] 处理失败: {type(e).__name__}: {e}")
-            return f"{display_name}: 异常"
+            label = display_name or name
+            return f"{label}: 异常"
 
     def _render_template(self, template: str, data: dict) -> str:
         """渲染模板，只处理双层大括号 {{...}}，单层大括号 {...} 忽略（除非在双层内部）"""
