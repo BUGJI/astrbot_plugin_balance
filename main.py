@@ -20,7 +20,6 @@ _BUILTIN_PARSERS = {
             "Authorization": "Bearer {api_key}",
         },
         "result_template": "DeepSeek: {{balance_infos.0.total_balance}} 元",
-        "display_name": "DeepSeek",
     },
     "siliconflow": {
         "url": "https://api.siliconflow.cn/v1/user/info",
@@ -29,7 +28,6 @@ _BUILTIN_PARSERS = {
             "Content-Type": "application/json",
         },
         "result_template": "硅基流动: {{data.totalBalance}} 元",
-        "display_name": "硅基流动",
     },
     "openrouter": {
         "url": "https://openrouter.ai/api/v1/credits",
@@ -37,7 +35,6 @@ _BUILTIN_PARSERS = {
             "Authorization": "Bearer {api_key}",
         },
         "result_template": "OpenRouter: ${{data.total_credits}}",
-        "display_name": "OpenRouter",
     },
     "oneapi": {
         # One-API / New-API 自建实例，需要 base_url（如 https://your.domain）
@@ -46,7 +43,6 @@ _BUILTIN_PARSERS = {
             "Authorization": "Bearer {api_key}",
         },
         "result_template": "{{data.email}}: {{data.balance}} 元",
-        "display_name": "One-API",
     },
     "moonshot": {
         "url": "https://api.moonshot.cn/v1/users/me/balance",
@@ -54,7 +50,6 @@ _BUILTIN_PARSERS = {
             "Authorization": "Bearer {api_key}",
         },
         "result_template": "月之暗面: {{data.available_balance}} 元",
-        "display_name": "月之暗面",
     },
     "openai": {
         "url": "https://api.openai.com/v1/dashboard/billing/subscription",
@@ -62,15 +57,13 @@ _BUILTIN_PARSERS = {
             "Authorization": "Bearer {api_key}",
         },
         "result_template": "OpenAI: ${{hard_limit_usd}}",
-        "display_name": "OpenAI",
     },
     "onething": {
         "url": "https://api-lab.onethingai.com/api/v1/account/wallet/detail",
         "headers": {
             "Authorization": "Bearer {api_key}",
         },
-        "result_template": "OneThing: ${{data.availableBalance}}",
-        "display_name": "OneThing",
+        "result_template": "OneThing: {{data.availableBalance}} 元",
     },
     
 }
@@ -114,7 +107,7 @@ class BalancePlugin(Star):
         查询并返回当前配置的所有余额信息
         """
         if not self.enable_llm_tool:
-            yield event.plain_result("余额查询 LLM 工具未启用")
+            yield event.plain_result("什么都木有~")
             return
 
         results = await self._query_all()
@@ -241,9 +234,12 @@ class BalancePlugin(Star):
                 # logger.info(f"[{name}] API 返回: {data}")
 
                 result = self._render_template(result_template, data)
-
-                if display_name:
-                    return f"{display_name}:\n{result}"
+                logger.debug(result)
+                
+                # 弃用 display_name 逻辑
+                # if display_name:
+                #     return f"{display_name}:\n{result}"
+                
                 return result
 
         except asyncio.TimeoutError:
