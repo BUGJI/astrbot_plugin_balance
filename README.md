@@ -86,17 +86,6 @@ services:
     result_template: "SiliconFlow: {{data.totalBalance}} 元"
 ```
 
-### 单行配置
-
-你可以直接粘贴至配置文件，只需要替换您账户的有效token即可（一行一个）
-
-```
-OneThingAI 网心云|https://api-lab.onethingai.com/api/v1/account/wallet/detail|Authorization: Bearer 你的token|data.availableBalance|元
-硅基流动 哈基流动|https://api.siliconflow.cn/v1/user/info|Authorization: Bearer 你的token|data.totalBalance|元
-Deepseek 蓝色鲸鱼|https://api.deepseek.com/user/balance|Authorization: Bearer 你的token|balance_infos.0.total_balance|元
-百度 不确定能不能调用|https://billing.baidubce.com/v1/finance/cash/balance|Authorization: 你的token|cashBalance|元
-```
-
 ## 🔍解读配置
 
 ### YAML配置
@@ -193,24 +182,6 @@ curl 'https://api-lab.onethingai.com/api/v1/account/wallet/detail' -H 'Authoriza
 ```
 网心云 0.05 元
 ```
-
-### 👴使用多请求头
-
-对于一些服务商，可能需要填写额外的Content-Type头
-
-你可以使用```&&```符号分隔多个请求头，就像这样：
-
-```
-Authorization: xxx && Content-Type: yyy
-```
-
-如果Content-Type以application/json填写到配置里，就会像这样
-
-```
-网心云|https://api-lab.onethingai.com/api/v1/account/wallet/detail|Authorization: Bearer 123456 && Content-Type: application/json|data.availableBalance|元
-```
-
-在新版YAML中，直接在headers下添加键值对。
 
 # 🔥异常处理
 
