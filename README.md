@@ -54,7 +54,7 @@ services:
     api_key: "sk-xxx"
   
   minimax:
-    type: "openai"
+    type: "minimax"
     api_key: "sk-xxx"
 ```
 
