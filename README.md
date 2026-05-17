@@ -21,15 +21,15 @@ B云 5.14 元
 
 ## 📕模板配置
 
-插件支持两种配置方式：旧版配置（单行文本）和新版YAML配置（更灵活配置）。
+如没有特殊站点，下面内置解析器的版本足够大部分人使用
 
-请在插件配置中勾选"使用新版YAML配置"来选择配置方式。
+可以直接复制并修改 `api_key` 字段为你的 token
 
-建议新用户使用```新版YAML配置```，对于旧版有更强的可操作性。
+如没有支持的站点 请跳转到下方 YAML 自定义模式
 
 ### 🚀 内置解析器（v0.4.0 新增）
 
-只需 `type` + `api_key`，无需手动找 API 地址和 JSON 路径。
+只需填写 `type` + `api_key` 即可
 
 ```yaml
 services:
@@ -41,8 +41,8 @@ services:
     type: "siliconflow"
     api_key: "sk-xxx"
 
-  openrouter:
-    type: "openrouter"
+  onething:
+    type: "onething"
     api_key: "sk-or-xxx"
 
   moonshot:
@@ -52,90 +52,32 @@ services:
   openai:
     type: "openai"
     api_key: "sk-xxx"
-
-  # One-API / New-API 自建实例（需要 base_url）
-  my_api:
-    type: "oneapi"
-    base_url: "https://my-api.example.com"
-    api_key: "sk-xxx"
 ```
-
-**当前支持的内置类型：** `deepseek`, `siliconflow`, `openrouter`, `oneapi`, `moonshot`, `openai`
-
-内置模式下，用户仍可选择性覆盖 `url`、`headers`、`result_template`、`display_name`、`method` 字段。
 
 ### YAML 自定义模式
 
-`type: "custom"` 或不填 `type` 时使用自定义模式，需完整配置 url/headers/result_template。
+使用 `type: "custom"` 时为自定义模式，可以和上方配置混合使用
+
+对于没有支持的站点，或者想自定义格式，此配置可以更灵活的设计一行的输出
 
 ```yaml
 services:
   Deepseek:
-    type: "custom"  # 可不填，默认 custom
-    url: "https://api.deepseek.com/user/balance"
-    headers:
+    type: "custom" # 标识为自定义格式
+    url: "https://api.deepseek.com/user/balance" # 请求的地址
+    headers: # 请求头列表，支持多个请求头
       Accept: "application/json"
-      Authorization: "Bearer Your-APIKEY"
-    result_template: "Deepseek: {{balance_infos.0.total_balance}} 元"
+      Authorization: "Bearer Your-APIKEY" # API-KEY 填写位置
+    result_template: "Deepseek: {{balance_infos.0.total_balance}} 元" # 返回模板，双层括号为json节
 
   SiliconFlow:
+    type: "custom"
     url: "https://api.siliconflow.cn/v1/user/info"
     headers:
       Authorization: "Bearer Your-APIKEY"
       Content-Type: "application/json"
-    result_template: "SiliconFlow: {{data.totalBalance}} 元"
+    result_template: "哈基流动: {{data.totalBalance}} CNY/元/人民币/Q币"
 ```
-
-## 🔍解读配置
-
-### YAML配置
-
-| 项目 | 用途 |
-| ---- | ---- |
-| display_name | 自定义展示名称（可选，默认使用key） |
-| url | 请求地址，支持URL参数 |
-| headers | 请求头，键值对形式，支持特殊字符 |
-| method | 请求方法（可选，默认GET） |
-| result_template | 结果模板，使用 `{{path}}` 替换，支持公式计算 |
-
-### 模板语法
-
-使用 **双层大括号** `{{}}` 包裹内容：
-
-```yaml
-# 简单取值
-result_template: "{{data.totalBalance}} 元"
-
-# 公式计算（内层 {path} 替换后计算外层）
-result_template: "{{abs({data.totalBalance})/100}} 元"
-result_template: "{{round({data.usage}/{data.limit}*100, 1)}}%"
-```
-
-**支持的函数：**
-
-| 函数 | 说明 | 示例 |
-|------|------|------|
-| `abs(x)` | 绝对值 | `{{abs({data.balance})}}` |
-| `round(x, n)` | 保留 n 位小数 | `{{round({data.usage}/{data.limit}*100, 1)}}` |
-| `sqrt(x)` | 平方根 | `{{sqrt({data.value})}}` |
-| `pow(x, n)` | 幂运算 | `{{pow({data.x}, 2)}}` |
-| `floor()`, `ceil()` | 取整 | `{{floor({data.value})}}` |
-
-支持运算符：`+`, `-`, `*`, `/`, `%`（如 `50%` = `50/100`）
-
-### 单行配置
-
-配置项以```|```符号分割，一行一个，格式如下：
-
-```备注|请求地址|请求头|要读取的字段名|金额单位```
-
-| 项目 | 用途 |
-| ---- | ---- |
-| 备注 | 用于显示API服务商名字 |
-| 请求地址 | 即显式API地址，通常http(s)开头 |
-| 请求头 | 即填写密钥头的地址，通常为Authorization: Bearer xxxxxx |
-| 要读取的字段名 | 通常余额会返回json格式，自动匹配余额字段并且获取余额 |
-| 单位 | 一个自定义后缀，通常写 元、积分 |
 
 # 💩添加第三方配置
 
@@ -162,12 +104,6 @@ curl 'https://api-lab.onethingai.com/api/v1/account/wallet/detail' -H 'Authoriza
 
 假设你的token是123456，那么应将配置写为：
 
-```text
-网心云|https://api-lab.onethingai.com/api/v1/account/wallet/detail|Authorization: Bearer 123456|data.availableBalance|元
-```
-
-或者新的yaml格式：
-
 ```yaml
   OneThing:
     url: "https://api-lab.onethingai.com/api/v1/account/wallet/detail"
@@ -182,6 +118,60 @@ curl 'https://api-lab.onethingai.com/api/v1/account/wallet/detail' -H 'Authoriza
 ```
 网心云 0.05 元
 ```
+
+
+## 🔍解读配置
+
+### YAML配置
+
+| 项目 | 用途 |
+| ---- | ---- |
+| display_name | 自定义展示名称（可选，默认使用key） |
+| url | 请求地址，支持URL参数 |
+| headers | 请求头，键值对形式，支持特殊字符 |
+| method | 请求方法（可选，默认GET） |
+| result_template | 结果模板，使用 `{{path}}` 替换，支持公式计算 |
+
+### 模板高级语法（通常用于精确计算）
+
+通常用于特殊站点，你可以给常见站点配置，如计算百分比用量
+
+使用 **双层大括号** `{{}}` 包裹内容：
+
+```yaml
+# 简单取值
+result_template: "{{data.totalBalance}} 元"
+
+# 公式计算（内层 {path} 替换后计算外层）
+result_template: "{{abs({data.totalBalance})/100}} 元"
+result_template: "{{round({data.usage}/{data.limit}*100, 1)}}%"
+```
+
+**支持的函数：**
+
+| 函数 | 说明 | 示例 |
+|------|------|------|
+| `abs(x)` | 绝对值 | `{{abs({data.balance})}}` |
+| `round(x, n)` | 保留 n 位小数 | `{{round({data.usage}/{data.limit}*100, 1)}}` |
+| `sqrt(x)` | 平方根 | `{{sqrt({data.value})}}` |
+| `pow(x, n)` | 幂运算 | `{{pow({data.x}, 2)}}` |
+| `floor()`, `ceil()` | 取整 | `{{floor({data.value})}}` |
+
+支持运算符：`+`, `-`, `*`, `/`, `%`（如 `50%` = `50/100`）
+
+### 单行配置
+
+配置项以`|`符号分割，一行一个，格式如下：
+
+`备注|请求地址|请求头|要读取的字段名|金额单位`
+
+| 项目 | 用途 |
+| ---- | ---- |
+| 备注 | 用于显示API服务商名字 |
+| 请求地址 | 即显式API地址，通常http(s)开头 |
+| 请求头 | 即填写密钥头的地址，通常为Authorization: Bearer xxxxxx |
+| 要读取的字段名 | 通常余额会返回json格式，自动匹配余额字段并且获取余额 |
+| 单位 | 一个自定义后缀，通常写 元、积分 |
 
 # 🔥异常处理
 
@@ -198,9 +188,14 @@ curl 'https://api-lab.onethingai.com/api/v1/account/wallet/detail' -H 'Authoriza
 # 🐓注意
 
 - 请求方式默认 GET
-- 新版配置需要安装 pyyaml 库：`pip install pyyaml`
 
 # 🩷特别感谢
 
-编写&修改：ChatGPT MiniMax M2.5
-修改：Xbodwf
+修改：
+- Xbodwf
+
+修改 (AI)：
+- ChatGPT
+- MiniMax M2.5
+- Deepseek V4 Pro
+- Qwen Coder
