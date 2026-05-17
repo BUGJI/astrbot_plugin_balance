@@ -52,7 +52,13 @@ services:
   openai:
     type: "openai"
     api_key: "sk-xxx"
+  
+  minimax:
+    type: "openai"
+    api_key: "sk-xxx"
 ```
+
+默认样式不一定会让大伙喜欢，如果感觉返回值可以简化，以及如果有新的API可以固化进来，可以开一个issues
 
 ### 自定义格式
 
