@@ -176,6 +176,8 @@ result_template: "{{round({data.usage}/{data.limit}*100, 1)}}%"
 | 请求超时 | 服务商名字 请求超时 |
 | 任何未定义的异常 | 服务商名字 异常 |
 
+> [更早期的配置](https://github.com/BUGJI/astrbot_plugin_balance/blob/dev/SIMPLE_CONFIG.MD)
+
 # 🩷特别感谢
 
 修改：
