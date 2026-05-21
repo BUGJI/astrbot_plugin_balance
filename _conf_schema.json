@@ -11,7 +11,7 @@
   "config_mode": {
     "description": "配置模式",
     "type": "string",
-    "options": ["simple", "yaml"],
+    "options": ["simple", "yaml", "template_list"],
     "default": "yaml"
   },
   "result_template": {
@@ -28,5 +28,103 @@
     "type": "bool",
     "hint": "可以在自然对话查询余额",
     "default": false
+  },
+  "config": {
+    "description": "API配置内容",
+    "type": "template_list",
+    "hint": "配置余额解析器，遵循顺序",
+    "templates": {
+      "deepseek": {
+        "name": "DeepSeek",
+        "items": {
+          "enable": {
+            "description": "启用",
+            "type": "bool",
+            "default": true
+          },
+          "use_proxy": {
+            "description": "使用代理",
+            "type": "bool",
+            "default": false,
+            "invisible": true
+          },
+          "api_key": {
+            "description": "API Key",
+            "hint": "填写你的key，用于查询余额",
+            "type": "text",
+            "default": ""
+          }
+        }
+      },
+      "siliconflow": {
+        "name": "SiliconFlow",
+        "items": {
+          "enable": {
+            "description": "启用",
+            "type": "bool",
+            "default": true
+          },
+          "use_proxy": {
+            "description": "使用代理",
+            "type": "bool",
+            "default": false,
+            "invisible": true
+          },
+          "api_key": {
+            "description": "API Key",
+            "hint": "填写你的key，用于查询余额",
+            "type": "text",
+            "default": ""
+          }
+        }
+      },
+      "OneThing": {
+        "name": "OneThing",
+        "items": {
+          "enable": {
+            "description": "启用",
+            "type": "bool",
+            "default": true
+          },
+          "use_proxy": {
+            "description": "使用代理",
+            "type": "bool",
+            "default": false,
+            "invisible": true
+          },
+          "api_key": {
+            "description": "API Key",
+            "hint": "填写你的key，用于查询余额",
+            "type": "text",
+            "default": ""
+          }
+        }
+      },
+      "Custom": {
+        "name": "Custom",
+        "items": {
+          "enable": {
+            "description": "启用",
+            "type": "bool",
+            "default": true
+          },
+          "use_proxy": {
+            "description": "使用代理",
+            "type": "bool",
+            "default": false,
+            "invisible": true
+          },
+          "request_template": {
+            "description": "请求模板",
+            "hint": "请修改此模板以适配你的API，",
+            "type": "text",
+            "editor_mode": true,
+            "editor_language": "yaml",
+            "editor_theme": "vs-dark",
+            "default": "myservice:\n  url: \"https://api.myservice.com/xxx\"\n  method: \"GET\"\n  headers:\n    Authorization: \"Bearer token\"\n  result_template: \"我的服务余额：{data.balance}元\""
+          }
+        }
+      }
+    }
   }
 }

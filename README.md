@@ -1,8 +1,6 @@
 # 💴万能余额查询
 
-  <img src="./logo.png" width="300" height="300" align="right"/>
-
-AstrBot 万能余额查询，只需要填写配置文件即可
+AstrBot 万能余额查询，只需要详细填写配置文件即可
 
 优势：
 - 支持99%的余额请求格式
@@ -27,19 +25,21 @@ B云 5.14 元
 
 可以直接复制并修改 `api_key` 字段为你的 token
 
+如没有支持的站点 请跳转到下方 自定义格式
+
 ### 🚀 内置解析器
 
 只需填写 `type` + `api_key` 即可
 
 ```yaml
 services:
-  deepseek:              # 只需要复制需要的三行即可
-    type: "deepseek"     # 需要包含 services: 头部
+  deepseek: # 只需要复制需要的三行即可
+    type: "deepseek"
     api_key: "sk-xxx"
 
-  siliconflow:           # 配置节名字
-    type: "siliconflow"  # 类型
-    api_key: "sk-xxx"    # Key
+  siliconflow:
+    type: "siliconflow"
+    api_key: "sk-xxx"
 
   onething:
     type: "onething"
@@ -52,15 +52,7 @@ services:
   openai:
     type: "openai"
     api_key: "sk-xxx"
-  
-  minimax:
-    type: "minimax"
-    api_key: "sk-xxx"
 ```
-
-如没有支持的站点 请跳转到下方 自定义格式
-
-默认样式不一定会让大伙喜欢，如果感觉返回值可以简化，以及如果有新的API可以固化进来，可以开一个issues
 
 ### 自定义格式
 

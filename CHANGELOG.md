@@ -2,15 +2,6 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.4.0] - 2026-05-18
-
-### Added
-- 支持部分常用的服务商，兼容原YAML配置
-- 给简介大刀阔斧
-
-### Removed
-- 移除了 display_name 的解析
-
 ## [0.3.2] - 2026-04-04
 
 ### Added

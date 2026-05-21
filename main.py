@@ -62,7 +62,7 @@ _BUILTIN_PARSERS = {
         "url": "https://api-lab.onethingai.com/api/v1/account/wallet/detail",
         "headers": {
             "Authorization": "Bearer {api_key}",
-        }，
+        },
         "result_template": "OneThing: {{data.availableBalance}} 元",
     },
     "minimax": {
@@ -73,11 +73,10 @@ _BUILTIN_PARSERS = {
         },
         "result_template": "MiniMax: 剩余 {{round({model_remains.0.current_interval_total_count}-{model_remains.0.current_interval_usage_count})}}/{{model_remains.0.current_interval_total_count}} ({{round(({model_remains.0.current_interval_total_count}-{model_remains.0.current_interval_usage_count})/{model_remains.0.current_interval_total_count}*100, 1)}}%), 本周 {{round({model_remains.0.current_weekly_total_count}-{model_remains.0.current_weekly_usage_count})}}/{{model_remains.0.current_weekly_total_count}}",
     },
-    
 }
 
 
-@register("balance_checker", "BUGJI", "通用查询各种 API 的余额", "v0.4.0")
+@register("balance_checker", "BUGJI", "通用查询各种 API 的余额", "v1.2.1")
 class BalancePlugin(Star):
     def __init__(self, context: Context, config: AstrBotConfig):
         super().__init__(context)
@@ -85,7 +84,8 @@ class BalancePlugin(Star):
 
         self.result_template = self.config.get("result_template", "余额查询结果：\n{result}")
         self.config_content = self.config.get("config_content", "")
-        self.config_mode: str = self.config.get("config_mode", "yaml")  # "simple" | "yaml"
+        self.config_mode: str = self.config.get("config_mode", "yaml")  # "simple" | "yaml" | "template_list"
+        self.config_templates: list = self.config.get("config", [])
         self.enable_llm_tool: bool = self.config.get("enable_llm_tool", False)
 
         self.session: aiohttp.ClientSession | None = None
@@ -123,6 +123,9 @@ class BalancePlugin(Star):
         yield event.plain_result(output)
 
     async def _query_all(self) -> list[str]:
+        if self.config_mode == "template_list":
+            return await self._query_template_list()
+
         if not self.config_content.strip():
             return ["未配置 config_content"]
 
@@ -162,6 +165,67 @@ class BalancePlugin(Star):
 
         return results
 
+    async def _query_template_list(self) -> list[str]:
+        """template_list 模式：从结构化配置生成服务列表并查询
+
+        配置格式为 list，每项包含 __template_key 标识模板类型:
+          [{"__template_key": "deepseek", "api_key": "sk-xxx", "enable": true}, ...]
+        """
+        templates = self.config_templates
+        if not templates:
+            return ["未配置任何模板"]
+
+        # 模板键名 → 内置解析器类型名 的映射
+        type_map = {
+            "deepseek": "deepseek",
+            "siliconflow": "siliconflow",
+            "OneThing": "onething",
+        }
+
+        services = {}
+        for item in templates:
+            template_key = item.get("__template_key", "")
+            if not item.get("enable", True):
+                continue
+
+            if template_key == "Custom":
+                request_template = item.get("request_template", "")
+                if not request_template or not request_template.strip():
+                    continue
+                try:
+                    custom_services = yaml.safe_load(request_template)
+                    if isinstance(custom_services, dict):
+                        services.update(custom_services)
+                except Exception as e:
+                    logger.error(f"解析 Custom 模板失败: {e}")
+            else:
+                api_key = item.get("api_key", "")
+                if not api_key:
+                    continue
+                parser_type = type_map.get(template_key, template_key.lower())
+                services[template_key] = {
+                    "type": parser_type,
+                    "api_key": api_key,
+                }
+
+        if not services:
+            return ["未启用任何服务或缺少 API Key"]
+
+        self._ensure_session()
+        tasks = []
+        for service_name, service_info in services.items():
+            tasks.append(self._handle_yaml_service(service_name, service_info))
+
+        results = []
+        responses = await asyncio.gather(*tasks, return_exceptions=True)
+        for r in responses:
+            if isinstance(r, str):
+                results.append(r)
+            elif isinstance(r, Exception):
+                logger.error(f"处理模板服务异常: {r}")
+
+        return results
+
     async def _query_simple(self) -> list[str]:
         """简单模式：使用旧版格式的配置"""
         self._ensure_session()
@@ -169,7 +233,7 @@ class BalancePlugin(Star):
         lines = self.config_content.strip().splitlines()
         tasks = [self._handle_line(line) for line in lines]
 
-        results = [self.title]
+        results = ["余额查询结果："]
 
         responses = await asyncio.gather(*tasks, return_exceptions=True)
         for r in responses:
@@ -242,12 +306,7 @@ class BalancePlugin(Star):
                 # logger.info(f"[{name}] API 返回: {data}")
 
                 result = self._render_template(result_template, data)
-                logger.debug(result)
-                
-                # 弃用 display_name 逻辑
-                # if display_name:
-                #     return f"{display_name}:\n{result}"
-                
+                logger.debug(f"[{name}] 结果: {result}")
                 return result
 
         except asyncio.TimeoutError:
