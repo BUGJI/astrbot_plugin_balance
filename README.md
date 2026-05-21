@@ -1,6 +1,6 @@
 # 💴万能余额查询
 
-  <img src="./logo.png" width="300" height="300" align="right"/>
+  <img src="./logo.png" width="280" height="280" align="right"/>
 
 AstrBot 万能余额查询，只需要填写配置文件即可
 
@@ -37,7 +37,9 @@ B云 5.14 元
 | Deepseek | ✅ |
 | Siliconflow | ✅ |
 | Onething | ✅ |
-| NewAPI | 暂时 |
+| NewAPI | 计划中 |
+| Baidu | 计划中 |
+| Custom | 自定义 |
 
 如没有支持的站点 请跳转到下方 自定义格式
 
@@ -48,29 +50,30 @@ B云 5.14 元
 对于没有支持的站点，或者想自定义格式，可以填写自定义模板配置查询输出
 
 ```yaml
-  Deepseek:
-    type: "custom" # 标识为自定义格式
-    url: "https://api.deepseek.com/user/balance" # 请求的地址
-    headers: # 请求头列表，支持多个请求头
-      Accept: "application/json"
-      Authorization: "Bearer Your-APIKEY" # API-KEY 填写位置
-    result_template: "Deepseek: {{balance_infos.0.total_balance}} 元" # 返回模板，双层括号为json节
 
-  SiliconFlow:
-    type: "custom"
-    url: "https://api.siliconflow.cn/v1/user/info"
-    headers:
-      Authorization: "Bearer Your-APIKEY"
-      Content-Type: "application/json"
-    result_template: "哈基流动: {{data.totalBalance}} CNY/元/人民币/Q币" # 模板可以修改成任何东西
+Deepseek:
+  url: "https://api.deepseek.com/user/balance"
+  method: "GET"
+  headers:
+    Accept: "application/json"
+    Authorization: "Bearer Your-APIKEY" # API-KEY 填写位置
+  result_template: "Deepseek: {{balance_infos.0.total_balance}} 元" # 返回模板，双层括号为json节
 
-  new-api:  # 此处为基于NewApi站点的通用配置，可以改成对应站点名字
-    type: "custom"
-    url: "http://newapi.domain/api/user/self" # 替换newapi.domain为你的站点地址
-    headers:
-      Authorization: "Bearer Your-Access-Token" # 不是APIKEY，需要登录 new-api 后台 → 个人设置 → 生成访问令牌（Access Token）
-      New-Api-User: "1" # 用户ID
-    result_template: "new-api: {{round({data.quota}/500000, 2)}} 美元 (已用 {{round({data.used_quota}/500000, 2)}})"
+SiliconFlow:
+  url: "https://api.siliconflow.cn/v1/user/info"
+  method: "GET"
+  headers:
+    Authorization: "Bearer Your-APIKEY"
+    Content-Type: "application/json"
+  result_template: "哈基流动: {{data.totalBalance}} CNY/元/人民币/Q币" # 模板可以修改成任何东西
+
+new-api:  # 此处为基于NewApi站点的通用配置，可以改成对应站点名字
+  url: "http://newapi.domain/api/user/self" # 替换newapi.domain为你的站点地址
+  method: "GET"
+  headers:
+    Authorization: "Bearer Your-Access-Token" # 不是APIKEY，需要登录 new-api 后台 → 个人设置 → 生成访问令牌（Access Token）
+    New-Api-User: "1" # 用户ID
+  result_template: "new-api: {{round({data.quota}/500000, 2)}} 美元 (已用 {{round({data.used_quota}/500000, 2)}})"
 ```
 
 ### 解读配置
@@ -109,12 +112,13 @@ curl 'https://api-lab.onethingai.com/api/v1/account/wallet/detail' -H 'Authoriza
 假设你的token是123456，那么应将配置写为：
 
 ```yaml
-  OneThing:
-    url: "https://api-lab.onethingai.com/api/v1/account/wallet/detail" # 请求地址 
-    headers:
-      Authorization: "Bearer 123456" # 余额
-      Content-Type: "application/json"
-    result_template: "网心云: {{data.availableBalance}} 元" # 配置节
+OneThing:
+  url: "https://api-lab.onethingai.com/api/v1/account/wallet/detail" # 请求地址
+  method: "GET"
+  headers:
+    Authorization: "Bearer 123456" # 余额
+    Content-Type: "application/json"
+  result_template: "网心云: {{data.availableBalance}} 元" # 配置节
 ```
 
 当请求```balance```的时候，对应行应返回
