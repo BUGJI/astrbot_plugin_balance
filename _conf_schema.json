@@ -53,7 +53,7 @@
           "api_key": {
             "description": "API Key",
             "hint": "填写你的key，用于查询余额",
-            "type": "text",
+            "type": "string",
             "default": ""
           }
         }
@@ -75,7 +75,7 @@
           "api_key": {
             "description": "API Key",
             "hint": "填写你的key，用于查询余额",
-            "type": "text",
+            "type": "string",
             "default": ""
           }
         }
@@ -97,7 +97,7 @@
           "api_key": {
             "description": "API Key",
             "hint": "填写你的key，用于查询余额",
-            "type": "text",
+            "type": "string",
             "default": ""
           }
         }
