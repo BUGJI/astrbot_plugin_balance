@@ -9,8 +9,7 @@ AstrBot 万能余额查询，只需要填写配置文件即可
 - 内置解析器：常用服务开箱即用，只需填 api_key
 - 配置中任意一行失败，不影响其他行
 - 支持LLM请求（可开关）
-- 支持YAML配置，更灵活，支持URL参数、复杂Header、多结果展示
-- 可选择使用旧版或新版配置
+- 简易配置，支持YAML接入任何源，支持URL参数、复杂Header、多结果展示
 
 # 👉快速开始
 
@@ -29,34 +28,16 @@ B云 5.14 元
 
 ### 🚀 内置解析器
 
-只需填写 `type` + `api_key` 即可
+只需填写 `api_key` 即可
 
-```yaml
-services:
-  deepseek:              # 只需要复制需要的三行即可
-    type: "deepseek"     # 需要包含 services: 头部
-    api_key: "sk-xxx"
+我们内置的列表：
 
-  siliconflow:           # 配置节名字
-    type: "siliconflow"  # 类型
-    api_key: "sk-xxx"    # Key
-
-  onething:
-    type: "onething"
-    api_key: "sk-or-xxx"
-
-  moonshot:
-    type: "moonshot"
-    api_key: "sk-xxx"
-
-  openai:
-    type: "openai"
-    api_key: "sk-xxx"
-  
-  minimax:
-    type: "minimax"
-    api_key: "sk-xxx"
-```
+| 服务商 | 支持程度 |
+| -------- | -- |
+| Deepseek | ✅ |
+| Siliconflow | ✅ |
+| Onething | ✅ |
+| NewAPI | 暂时 |
 
 如没有支持的站点 请跳转到下方 自定义格式
 
@@ -64,12 +45,9 @@ services:
 
 ### 自定义格式
 
-使用 `type: "custom"` 时为自定义模式，可以和上方配置混合使用
-
-对于没有支持的站点，或者想自定义格式，此配置可以更灵活的设计一行的输出
+对于没有支持的站点，或者想自定义格式，可以填写自定义模板配置查询输出
 
 ```yaml
-services:
   Deepseek:
     type: "custom" # 标识为自定义格式
     url: "https://api.deepseek.com/user/balance" # 请求的地址
