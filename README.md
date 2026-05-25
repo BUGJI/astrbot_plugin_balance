@@ -1,3 +1,7 @@
+> 公告：有新版本诚邀测试，让通用化配置变得更加简单，点击可查看 [Dev分支](https://github.com/BUGJI/astrbot_plugin_balance/tree/dev)
+
+> Astrbot 仓库的版本可能较旧，如果版本有问题请优先选择 `使用 URL 安装`
+
 # 💴万能余额查询
 
   <img src="./logo.png" width="300" height="300" align="right"/>
