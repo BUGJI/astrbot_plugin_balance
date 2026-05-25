@@ -13,6 +13,8 @@ AstrBot 万能余额查询，只需要填写配置文件即可
 
 > ⚠️注意：从老版本升级到此需要先清除持久化配置，否则会导致插件无法使用
 
+> 请查看 [CHANGELOG](https://github.com/BUGJI/astrbot_plugin_balance/edit/dev/CNANGELOG.md) 来查看相较于老版本更新了什么
+
 # 👉快速开始
 
 使用```balance```命令，则会返回如下格式的消息：
