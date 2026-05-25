@@ -1,3 +1,7 @@
+> ⚠️注意：从老版本升级到此需要先清除持久化配置，否则会导致插件无法使用
+
+> 此为DEV分支，请查看 [CHANGELOG](https://github.com/BUGJI/astrbot_plugin_balance/edit/dev/CNANGELOG.md) 来查看相较于老版本更新了什么
+
 # 💴万能余额查询
 
   <img src="./logo.png" width="280" height="280" align="right"/>
@@ -10,10 +14,6 @@ AstrBot 万能余额查询，只需要填写配置文件即可
 - 配置中任意一行失败，不影响其他行
 - 支持LLM请求（可开关）
 - 简易配置，支持YAML接入任何源，支持URL参数、复杂Header、多结果展示
-
-> ⚠️注意：从老版本升级到此需要先清除持久化配置，否则会导致插件无法使用
-
-> 请查看 [CHANGELOG](https://github.com/BUGJI/astrbot_plugin_balance/edit/dev/CNANGELOG.md) 来查看相较于老版本更新了什么
 
 # 👉快速开始
 
