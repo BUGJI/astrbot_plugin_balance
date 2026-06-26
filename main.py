@@ -96,7 +96,7 @@ _BUILTIN_PARSERS = {
             "Authorization": "Bearer {api_key}",  # 使用 Manage Key
         },
         # 计算公式：余额 = quota / 500000，保留2位小数
-        "result_template": "AIHubMix: {{round({data.quota}/500000, 2)}} 元",
+        "result_template": "AIHubMix: {{round({data.quota}/500000*7.1, 2)}}" 元",
     },
 }
 
