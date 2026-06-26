@@ -46,19 +46,26 @@ services:
   siliconflow:
     type: "siliconflow"
     api_key: "sk-xxx"
-
-  onething:
-    type: "onething"
-    api_key: "sk-or-xxx"
-
-  moonshot:
-    type: "moonshot"
-    api_key: "sk-xxx"
-
-  openai:
-    type: "openai"
-    api_key: "sk-xxx"
 ```
+<details>
+  <summary>点击展开更多配置</summary><br>
+  
+  ```yaml
+    onething:
+      type: "onething"
+      api_key: "sk-or-xxx"
+  
+    moonshot:
+      type: "moonshot"
+      api_key: "sk-xxx"
+  
+    openai:
+      type: "openai"
+      api_key: "sk-xxx"
+  ```
+</details>
+
+<br>
 
 ### 自定义格式
 
