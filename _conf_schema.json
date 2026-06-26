@@ -102,6 +102,72 @@
           }
         }
       },
+      "kimi": {
+        "name": "kimi",
+        "items": {
+          "enable": {
+            "description": "启用",
+            "type": "bool",
+            "default": true
+          },
+          "use_proxy": {
+            "description": "使用代理",
+            "type": "bool",
+            "default": false,
+            "invisible": true
+          },
+          "api_key": {
+            "description": "API Key",
+            "hint": "填写你的key，用于查询余额",
+            "type": "string",
+            "default": ""
+          }
+        }
+      },
+      "kimi-full": {
+        "name": "kimi-full",
+        "items": {
+          "enable": {
+            "description": "启用",
+            "type": "bool",
+            "default": true
+          },
+          "use_proxy": {
+            "description": "使用代理",
+            "type": "bool",
+            "default": false,
+            "invisible": true
+          },
+          "api_key": {
+            "description": "API Key",
+            "hint": "填写你的key，用于查询余额",
+            "type": "string",
+            "default": ""
+          }
+        }
+      },
+      "aihubmix": {
+        "name": "aihubmix",
+        "items": {
+          "enable": {
+            "description": "启用",
+            "type": "bool",
+            "default": true
+          },
+          "use_proxy": {
+            "description": "使用代理",
+            "type": "bool",
+            "default": false,
+            "invisible": true
+          },
+          "api_key": {
+            "description": "API Key",
+            "hint": "填写你的key，用于查询余额",
+            "type": "string",
+            "default": ""
+          }
+        }
+      },
       "Custom": {
         "name": "Custom",
         "items": {
