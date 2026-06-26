@@ -55,10 +55,14 @@ services:
       type: "onething"
       api_key: "sk-or-xxx"
   
-    moonshot:
-      type: "moonshot"
+    kimi:
+      type: "kimi" # moonshot
       api_key: "sk-xxx"
-  
+
+    kimi: 
+      type: "kimi-full" # 更详细的显示：Kimi: 25 元 (现金: 10 元, 代金券: 15 元)
+      api_key: "sk-xxx"
+
     openai:
       type: "openai"
       api_key: "sk-xxx"
