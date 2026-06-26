@@ -89,6 +89,15 @@ _BUILTIN_PARSERS = {
         },
         "result_template": "Kimi: {{data.available_balance}} 元 (现金: {{data.cash_balance}} 元, 代金券: {{data.voucher_balance}} 元)",
     },
+    "aihubmix": {
+        "url": "https://aihubmix.com/api/user/self", 
+        "headers": {
+            "Accept": "application/json",
+            "Authorization": "Bearer {api_key}",  # 使用 Manage Key
+        },
+        # 计算公式：余额 = quota / 500000，保留2位小数
+        "result_template": "AIHubMix: {{round({data.quota}/500000, 2)}} 元",
+    },
 }
 
 
