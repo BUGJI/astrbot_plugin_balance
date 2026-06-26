@@ -63,6 +63,10 @@ services:
       type: "kimi-full" # 更详细的显示：Kimi: 25 元 (现金: 10 元, 代金券: 15 元)
       api_key: "sk-xxx"
 
+    aihubmix: 
+      type: "aihubmix" # 此方式需要魔法驱动
+      api_key: "sk-xxx"
+
     openai:
       type: "openai"
       api_key: "sk-xxx"
