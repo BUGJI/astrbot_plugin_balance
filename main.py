@@ -98,6 +98,38 @@ _BUILTIN_PARSERS = {
         # 计算公式：余额 = quota / 500000，保留2位小数
         "result_template": "AIHubMix: {{round({data.quota}/500000*7.1, 2)}}" 元",
     },
+    "apimart": {
+        "url": "https://aishuch.com/v1/user/balance",
+        "headers": {
+            "Accept": "application/json",
+            "Authorization": "Bearer {api_key}",
+        },
+        "result_template": "APIMart: {{round({remain_balance}*7, 2) - round({used_balance}*7, 2)}} 元",
+    },
+    "apimart-full": {
+        "url": "https://aishuch.com/v1/user/balance",
+        "headers": {
+            "Accept": "application/json",
+            "Authorization": "Bearer {api_key}",
+        },
+        "result_template": "APIMart: {{round({remain_balance}*7, 2)}} 元 (已用: {{round({used_balance}*7, 2)}} 元)",
+    },
+    "apimart-credits": {
+        "url": "https://aishuch.com/v1/user/balance",
+        "headers": {
+            "Accept": "application/json",
+            "Authorization": "Bearer {api_key}",
+        },
+        "result_template": "APIMart: {{round({remain_credits}, 2) - round({used_credits}, 2)}} 积分",
+    },
+    "apimart-credits-full": {
+        "url": "https://aishuch.com/v1/user/balance",
+        "headers": {
+            "Accept": "application/json",
+            "Authorization": "Bearer {api_key}",
+        },
+        "result_template": "APIMart: {{round({remain_credits}, 2)}} 积分 (已用: {{round({used_credits}, 2)}} 积分)",
+    },
 }
 
 
