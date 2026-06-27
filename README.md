@@ -59,8 +59,24 @@ services:
       type: "kimi" # moonshot
       api_key: "sk-xxx"
 
-    kimi: 
+    kimi-full: 
       type: "kimi-full" # 更详细的显示：Kimi: 25 元 (现金: 10 元, 代金券: 15 元)
+      api_key: "sk-xxx"
+
+    apimart: 
+      type: "apimart" 
+      api_key: "sk-xxx"
+
+    apimart-full: 
+      type: "apimart-full" # 更详细的显示：apimart: 25 元 (已用: 15 元)
+      api_key: "sk-xxx"
+
+    apimart-credits: 
+      type: "apimart-credits" # 积分为单位，无汇率转换
+      api_key: "sk-xxx"
+
+    apimart-credits-full: 
+      type: "apimart-credits-full" # 更详细的显示：apimart: 10 积分 (已用: 5 积分)
       api_key: "sk-xxx"
 
     aihubmix: 
