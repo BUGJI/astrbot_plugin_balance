@@ -62,7 +62,7 @@ _BUILTIN_PARSERS = {
         "url": "https://api-lab.onethingai.com/api/v1/account/wallet/detail",
         "headers": {
             "Authorization": "Bearer {api_key}",
-        }，
+        },
         "result_template": "OneThing: {{data.availableBalance}} 元",
     },
     "minimax": {
